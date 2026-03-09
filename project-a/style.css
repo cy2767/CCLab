@@ -6,12 +6,25 @@ CCLaboratories Biodiversity Atlas
 */
 
 body {
-    background-color: white;
+    background-color: lightskyblue;
+    background-image: url(water.JPG);
     color: DimGray;
     font-family: 'Courier New', Courier, monospace;
     font-size: 1em;
     line-height: 1.5em;
 }
+
+#text {
+    margin-left: 18%;
+    margin-right: 15%;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-bottom: 5%;
+    background-color: white;
+}
+
 
 /* title */
 #title-wrapper {
@@ -20,10 +33,12 @@ body {
 
 .headline {
     font-size: 3em;
-    font-family: Georgia, 'Times New Roman', Times, serif;
+    /*font-family: Georgia, 'Times New Roman', Times, serif;
+    font-family: Verdana, Geneva, Tahoma, sans-serif; */
+    font-family: 'Courier New', Courier, monospace;
     font-weight: 600;
-    margin-top: 80px;
-    margin-bottom: 60px;
+    padding-top: 50px;
+    margin-bottom: 35px;
 }
 
 /* main content */

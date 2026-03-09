@@ -123,8 +123,8 @@ function draw() {
     pop();
 
     //How to make motion of lilypad more water like?
-    dxLily = map(noise(frameCount / 500 + 1000), 0.3, 0.7, -3, 3);
-    dyLily = map(noise(frameCount / 500 + 100), 0.3, 0.7, -3, 3);
+    dxLily = map(noise(frameCount / 500 + 1000), 0, 1, -2, 2);
+    dyLily = map(noise(frameCount / 500 + 100), 0, 1, -2, 2);
 
     cx = cx + dxLily;
     cy = cy + dyLily;
@@ -164,7 +164,7 @@ function drawLilypad(cx, cy, speed = 1) {
     angle = lerp(angle, targetAngle, 0.5);
 
     if (mouseIsClose(cx, cy, 50) == true) {
-        speed = 2 * frameCount;
+        speed = frameCount / 5;
     }
 
     if (showFrog == true) {
@@ -174,7 +174,7 @@ function drawLilypad(cx, cy, speed = 1) {
     }
 
     if (angry == true) {
-        speed = 2 * frameCount;
+        speed = frameCount / 2;
         //xySpeed = 100;
         cx = cx + dxLily + random(-2, 2);
         cy = cy + dyLily + random(-2, 2);
@@ -471,7 +471,7 @@ function drawFrog(fx, fy) {
     translate(fx, fy);
 
 
-    if (frameCount % 50 == 49) {
+    if (frameCount % 80 == 79) {
         targetX = random(frogX - 100, frogX + 100);
         targetY = random(frogY - 100, frogY + 100);
     }
