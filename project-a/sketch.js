@@ -1,10 +1,10 @@
 //LILYPAD VARIABLES
 //lilypad coordinates
 let cx, cy;
+let dxLily, dyLily;
 let angry; //lilypad state
 let xySpeed;
 let savedTime;
-let currentTime;
 let lilyGreen; //green of lilypad
 let angle;
 let targetAngle;
@@ -13,6 +13,7 @@ let targetAngle;
 //light coordinates
 let lx, ly;
 let lightX, lightY;
+let radius = 20;
 
 //to make lights draggable
 let selected = null;
@@ -29,23 +30,27 @@ let showLight0,
 
 //FROG VARIABLES
 let targetX, targetY;
+let frogTarget;
+let frogAngle;
 let frogX, frogY; //initial frog spawing coordinates; do I need fx fy? again, local vs global
 let showFrog;
+
+let howClose; //integer determining mouseIsClose
 
 function setup() {
     let canvas = createCanvas(800, 500);
     canvas.id("p5-canvas");
     canvas.parent("p5-canvas-container");
 
-
     colorMode(RGB);
 
     //LILYPAD
     cx = random(0, width);
     cy = random(0, height);
+
     angry = false;
-    xySpeed = 300;
-    lilyGreen = 113;
+    xySpeed = 200;
+    lilyGreen = 123;
     angle = 0;
 
     //LIGHT
@@ -76,6 +81,8 @@ function setup() {
     y6 = random(0, height);
 
     //FROG
+    frogAngle = 0;
+    frogTarget = 0;
     targetX = random(35, width - 35);
     targetY = random(35, height - 35);
     frogX = random(35, width - 35);
@@ -91,13 +98,24 @@ function draw() {
     noStroke();
     push();
     colorMode(HSB);
+    /*
+    for (let x = 1; x < width; x += 4) {
+      for (let y = 1; y < height; y += 4) {
+        let noiseVal = noise(
+          x / 500 + frameCount / 200,
+          y / 500 + frameCount / 200
+        );
+        fill(map(noiseVal, 0, 1, 180, 220), 50, 100);
+        square(x, y, 4);
+      }
+    } */
     for (let x = 1; x < width; x += 4) {
         for (let y = 1; y < height; y += 4) {
             let noiseVal = noise(
-                x / 500 + frameCount / 200,
-                y / 500 + frameCount / 200
+                x / 100 + frameCount / 150,
+                y / 50 + frameCount / 150
             );
-            fill(map(noiseVal, 0, 1, 180, 220), 50, 100);
+            fill(map(noiseVal, 0, 1, 185, 195), 50, 100);
             square(x, y, 4);
         }
     }
@@ -105,11 +123,18 @@ function draw() {
     pop();
 
     //How to make motion of lilypad more water like?
-    cx = map(noise(frameCount / xySpeed), 0, 1, 0, width);
-    cy = map(noise(frameCount / xySpeed + 100), 0, 1, 0, height);
-    cx = constrain(cx, 50, width - 50);
-    cy = constrain(cy, 50, height - 50);
+    dxLily = map(noise(frameCount / 200 + 1000), 0.3, 0.7, -3, 3);
+    dyLily = map(noise(frameCount / 200 + 100), 0.3, 0.7, -3, 3);
 
+    cx = cx + dxLily;
+    cy = cy + dyLily;
+
+    cx = constrain(cx, 60, width - 60);
+    cy = constrain(cy, 60, height - 60);
+
+    console.log("cx: " + cx);
+    console.log("dxLily: " + dxLily);
+    console.log("cy: " + cy);
     drawLilypad(cx, cy);
 
     //I wonder if there is way to make concise code + keep showLight + for loop
@@ -129,65 +154,96 @@ function draw() {
 }
 
 function drawLilypad(cx, cy, speed = 1) {
-    noStroke();
+    stroke(154, 205, 50);
+    //stroke(199, 214, 109);
+    strokeWeight(4);
 
-    targetAngle = atan2(cy, cx);
+    fill(88, lilyGreen, 2);
+
+    targetAngle = atan2(dyLily, dxLily);
     angle = lerp(angle, targetAngle, 0.5);
 
-    //to make lilypad rotate
-    push();
-    translate(cx, cy);
-    fill(66, lilyGreen, 97);
-    console.log(lilyGreen);
-
-    if (mouseIsClose(cx, cy) == true) {
+    if (mouseIsClose(cx, cy, 50) == true) {
         speed = 2 * frameCount;
     }
 
     if (showFrog == true) {
         angry = true;
-        //console.log("saved time: " + savedTime);
     } else if (showFrog == false) {
         angry = false;
     }
 
     if (angry == true) {
         speed = 5 * frameCount;
-        xySpeed = 40;
-        colorMode(RGB);
-        fill(139, 59, 64); //changes to red, want to change to incremental based on time later
+        //xySpeed = 100;
+        cx = cx + dxLily + random(-2, 2);
+        cy = cy + dyLily + random(-2, 2);
+        //fill(225, 50, 50);
+        fill(242, 95, 92);
+        stroke(139, 0, 0);
     } else if (angry == false) {
-        colorMode(HSB);
-        targetAngle = atan2(cy, cx);
-        angle = lerp(angle, targetAngle, 0.5);
-        xySpeed = 300;
+        xySpeed = 200;
     }
-    //console.log("current time: " + millis());
 
-    //targetAngle = atan2(cy, cx);
-    //angle = lerp(angle, targetAngle, 0.5);
+    let distL0 = dist(x0, y0, cx, cy);
+    let distL1 = dist(x1, y1, cx, cy);
+    let distL2 = dist(x2, y2, cx, cy);
+    let distL3 = dist(x3, y3, cx, cy);
+    let distL4 = dist(x4, y4, cx, cy);
+    let distL5 = dist(x5, y5, cx, cy);
+    let distL6 = dist(x6, y6, cx, cy);
 
-    rotate(angle);
-    arc(0, 0, 100, 100, radians(20), radians(-20));
-    //arc(0, 0, 100, 100, 0, radians(300));
+    //to make lilypad rotate
+    push();
+    translate(cx, cy);
+    if (distL0 < 200) {
+        //when close enough
+        targetAngle = atan2(y0 - cy, x0 - cx);
+        angle = lerp(angle, targetAngle, 0.05);
+    }
+    if (distL1 < 200) {
+        //when close enough
+        targetAngle = atan2(y1 - cy, x1 - cx);
+        angle = lerp(angle, targetAngle, 0.05);
+    }
+    if (distL2 < 200) {
+        //when close enough
+        targetAngle = atan2(y2 - cy, x2 - cx);
+        angle = lerp(angle, targetAngle, 0.05);
+    }
+    if (distL3 < 200) {
+        //when close enough
+        targetAngle = atan2(y3 - cy, x3 - cx);
+        angle = lerp(angle, targetAngle, 0.05);
+    }
+    if (distL4 < 200) {
+        //when close enough
+        targetAngle = atan2(y4 - cy, x4 - cx);
+        angle = lerp(angle, targetAngle, 0.05);
+    }
+    if (distL5 < 200) {
+        //when close enough
+        targetAngle = atan2(y5 - cy, x5 - cx);
+        angle = lerp(angle, targetAngle, 0.05);
+    }
+    if (distL6 < 200) {
+        //when close enough
+        targetAngle = atan2(y6 - cy, x6 - cx);
+        angle = lerp(angle, targetAngle, 0.05);
+    }
+    angle = lerp(angle, targetAngle, 0.05);
+    rotate(angle * speed);
+    arc(0, 0, 100, 100, radians(20), radians(-20), PIE);
     pop();
 }
 
 function drawLight(lx, ly, idx) {
     fill(255);
+    stroke(255);
+    strokeWeight(4);
 
-    //how to make more water like? less acceleration, constant speed --> does mapping help?, using seed instead for noise?
     lx = map(noise(frameCount / 400 + 100 * idx), 0, 1, -3, 3);
-    //lx = noise(frameCount/400 + 100 * idx) * width;
     ly = map(noise(frameCount / 400 + 200 * idx), 0, 1, -3, 3);
-    //lx = constrain(lx, 10, width-10);
-    //ly = constrain(ly, 10, height-10);
-
-    /*
-    console.log("lx: " + lx);
-    console.log("ly: " + ly);
-    console.log("showLight: " + showLight);
-    */
 
     //light1
     if (idx == 0 && showLight0 == true) {
@@ -202,21 +258,22 @@ function drawLight(lx, ly, idx) {
 
         if (x0 > width + 10) {
             x0 = -10;
-        }
-        else if (x0 < -10) {
+        } else if (x0 < -10) {
             x0 = width + 10;
         }
         if (y0 > height + 10) {
             y0 = -10;
-        }
-        else if (y0 < -10) {
+        } else if (y0 < -10) {
             y0 = height + 10;
         }
 
-        //x0 = constrain(x0, 10, width - 10);
-        //y0 = constrain(y0, 10, height - 10);
-
-        circle(x0, y0, 20);
+        if (mouseIsClose(x0, y0, 20) == true) {
+            fill(random(0, 255), random(0, 255), random(0, 255), 150);
+            radius = map(noise(frameCount / 100), 0, 1, 18, 30);
+        } else {
+            radius = 20;
+        }
+        circle(x0, y0, radius);
     }
     //light2
     if (idx == 10 && showLight1 == true) {
@@ -230,21 +287,25 @@ function drawLight(lx, ly, idx) {
 
         if (x1 > width + 10) {
             x1 = -10;
-        }
-        else if (x1 < -10) {
+        } else if (x1 < -10) {
             x1 = width + 10;
         }
         if (y1 > height + 10) {
             y1 = -10;
-        }
-        else if (y1 < -10) {
+        } else if (y1 < -10) {
             y1 = height + 10;
         }
 
         //x1 = constrain(x1, 10, width - 10);
         //y1 = constrain(y1, 10, height - 10);
 
-        circle(x1, y1, 20);
+        if (mouseIsClose(x1, y1, 20) == true) {
+            fill(random(0, 255), random(0, 255), random(0, 255), 150);
+            radius = map(noise(frameCount / 100), 0, 1, 18, 30);
+        } else {
+            radius = 20;
+        }
+        circle(x1, y1, radius);
     }
     //light3
     if (idx == 20 && showLight2 == true) {
@@ -258,21 +319,25 @@ function drawLight(lx, ly, idx) {
 
         if (x2 > width + 10) {
             x2 = -10;
-        }
-        else if (x2 < -10) {
+        } else if (x2 < -10) {
             x2 = width + 10;
         }
         if (y2 > height + 10) {
             y2 = -10;
-        }
-        else if (y2 < -10) {
+        } else if (y2 < -10) {
             y2 = height + 10;
         }
 
         //x2 = constrain(x2, 10, width - 10);
         //y2 = constrain(y2, 10, height - 10);
+        if (mouseIsClose(x2, y2, 20) == true) {
+            fill(random(0, 255), random(0, 255), random(0, 255), 150);
+            radius = map(noise(frameCount / 100), 0, 1, 18, 30);
+        } else {
+            radius = 20;
+        }
 
-        circle(x2, y2, 20);
+        circle(x2, y2, radius);
     }
     //light4
     if (idx == 30 && showLight3 == true) {
@@ -286,21 +351,22 @@ function drawLight(lx, ly, idx) {
 
         if (x3 > width + 10) {
             x3 = -10;
-        }
-        else if (x3 < -10) {
+        } else if (x3 < -10) {
             x3 = width + 10;
         }
         if (y3 > height + 10) {
             y3 = -10;
-        }
-        else if (y3 < -10) {
+        } else if (y3 < -10) {
             y3 = height + 10;
         }
 
-        //x3 = constrain(x3, 10, width - 10);
-        //y3 = constrain(y3, 10, height - 10);
-
-        circle(x3, y3, 20);
+        if (mouseIsClose(x3, y3, 20) == true) {
+            fill(random(0, 255), random(0, 255), random(0, 255), 150);
+            radius = map(noise(frameCount / 100), 0, 1, 18, 30);
+        } else {
+            radius = 20;
+        }
+        circle(x3, y3, radius);
     }
     //light5
     if (idx == 40 && showLight4 == true) {
@@ -315,21 +381,22 @@ function drawLight(lx, ly, idx) {
 
         if (x4 > width + 10) {
             x4 = -10;
-        }
-        else if (x4 < -10) {
+        } else if (x4 < -10) {
             x4 = width + 10;
         }
         if (y4 > height + 10) {
             y4 = -10;
-        }
-        else if (y4 < -10) {
+        } else if (y4 < -10) {
             y4 = height + 10;
         }
 
-        //x4 = constrain(x4, 10, width - 10);
-        //y4 = constrain(y4, 10, height - 10);
-
-        circle(x4, y4, 20);
+        if (mouseIsClose(x4, y4, 20) == true) {
+            fill(random(0, 255), random(0, 255), random(0, 255), 150);
+            radius = map(noise(frameCount / 100), 0, 1, 18, 30);
+        } else {
+            radius = 20;
+        }
+        circle(x4, y4, radius);
     }
     //light6
     if (idx == 50 && showLight5 == true) {
@@ -338,28 +405,28 @@ function drawLight(lx, ly, idx) {
             showLight5 = false;
             lilyGreen = lilyGreen + 7;
         }
-        //console.log(d);
 
         x5 += lx;
         y5 += ly;
 
         if (x5 > width + 10) {
             x5 = -10;
-        }
-        else if (x5 < -10) {
+        } else if (x5 < -10) {
             x5 = width + 10;
         }
         if (y5 > height + 10) {
             y5 = -10;
-        }
-        else if (y5 < -10) {
+        } else if (y5 < -10) {
             y5 = height + 10;
         }
 
-        //x5 = constrain(x5, 10, width - 10);
-        //y5 = constrain(y5, 10, height - 10);
-        circle(x5, y5, 20);
-
+        if (mouseIsClose(x5, y5, 20) == true) {
+            fill(random(0, 255), random(0, 255), random(0, 255), 150);
+            radius = map(noise(frameCount / 100), 0, 1, 18, 30);
+        } else {
+            radius = 20;
+        }
+        circle(x5, y5, radius);
     }
     //light7
     if (idx == 60 && showLight6 == true) {
@@ -373,46 +440,64 @@ function drawLight(lx, ly, idx) {
 
         if (x6 > width + 10) {
             x6 = -10;
-        }
-        else if (x6 < -10) {
+        } else if (x6 < -10) {
             x6 = width + 10;
         }
         if (y6 > height + 10) {
             y6 = -10;
-        }
-        else if (y6 < -10) {
+        } else if (y6 < -10) {
             y6 = height + 10;
         }
 
-        //x6 = constrain(x6, 10, width - 10);
-        //y6 = constrain(y6, 10, height - 10);
-
-        circle(x6, y6, 20);
+        if (mouseIsClose(x6, y6, 20) == true) {
+            fill(random(0, 255), random(0, 255), random(0, 255), 150);
+            radius = map(noise(frameCount / 100), 0, 1, 18, 30);
+        } else {
+            radius = 20;
+        }
+        circle(x6, y6, radius);
     }
 }
 
 //FROG
 function drawFrog(fx, fy) {
     stroke(255);
+    strokeWeight(1);
     fill(133, 163, 67);
-
-    //let jumpX = random(70, 100);
-    //let jumpY = random(70, 100);
 
     //moving whole frog
     push();
-    frogX = lerp(frogX, targetX, 0.1);
-    frogY = lerp(frogY, targetY, 0.1);
+
+
+
+
     translate(fx, fy);
-    // new target every 100 frames
-    if (frameCount % 10 == 9) {
-        //want to replace 70 with jumpX later
+
+
+    if (frameCount % 15 == 14) {
         targetX = random(frogX - 100, frogX + 100);
         targetY = random(frogY - 100, frogY + 100);
     }
+
+    frogX = lerp(frogX, targetX, 0.1);
+    frogY = lerp(frogY, targetY, 0.1);
+    frogTarget = atan2(targetY - frogY, targetX - frogX);
+    frogAngle = lerp(frogAngle, frogTarget, 0.2); //key
+    // new target every 100 frames
     frogX = constrain(frogX, 80, width - 80);
     frogY = constrain(frogY, 80, height - 80);
 
+    if (mouseIsClose(frogX, frogY, 50) == true) {
+        fill(random(0, 255), 163, random(0, 255), 255);
+        //strokeWeight(4);
+        if (mouseIsPressed) {
+            showFrog = false;
+            savedTime = millis();
+        }
+    }
+    rotate(frogAngle + PI / 2); //key
+    console.log(frogTarget);
+    //put push here?
     //drawing frog itself
     scale(1, -1);
     beginShape();
@@ -442,7 +527,6 @@ function drawFrog(fx, fy) {
     vertex(0, 35);
     endShape();
     //left side
-    //scale(-1, 1);
     beginShape();
     scale(-1, 1); //may need to revert later
     curveVertex(1, 40);
@@ -469,26 +553,15 @@ function drawFrog(fx, fy) {
     curveVertex(1, 40);
     endShape();
     scale(-1, 1); //reverting back to normal
+
+
     pop(); //end of frog movement
-
-    //"catch" frog by clicking on it + change frog color when hovered
-    let frogD = dist(mouseX, mouseY, frogX, frogY);
-    //console.log(frogD);
-    //console.log(", " + (frogD < 80));
-
-    if (frogD < 80 == true) {
-        fill(random(0, 360), random(0, 360), random(0, 360), 80); //why won't it change fill colors?
-        if (mouseIsPressed) {
-            showFrog = false;
-            savedTime = millis();
-        }
-    }
 }
 
 //interaction: make circle spin faster
-function mouseIsClose(x, y) {
+function mouseIsClose(x, y, howClose) {
     let d = dist(mouseX, mouseY, x, y);
-    if (d < 50) {
+    if (d < howClose) {
         return true;
     } else {
         return false;
@@ -546,7 +619,7 @@ function mouseDragged() {
         x6 += mouseX - pmouseX;
         y6 += mouseY - pmouseY;
     }
-    console.log(selected);
+    //console.log(selected);
 }
 
 function mouseReleased() {
