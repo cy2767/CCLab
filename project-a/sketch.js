@@ -123,8 +123,8 @@ function draw() {
     pop();
 
     //How to make motion of lilypad more water like?
-    dxLily = map(noise(frameCount / 200 + 1000), 0.3, 0.7, -3, 3);
-    dyLily = map(noise(frameCount / 200 + 100), 0.3, 0.7, -3, 3);
+    dxLily = map(noise(frameCount / 500 + 1000), 0.3, 0.7, -3, 3);
+    dyLily = map(noise(frameCount / 500 + 100), 0.3, 0.7, -3, 3);
 
     cx = cx + dxLily;
     cy = cy + dyLily;
@@ -174,7 +174,7 @@ function drawLilypad(cx, cy, speed = 1) {
     }
 
     if (angry == true) {
-        speed = 5 * frameCount;
+        speed = 2 * frameCount;
         //xySpeed = 100;
         cx = cx + dxLily + random(-2, 2);
         cy = cy + dyLily + random(-2, 2);
@@ -242,8 +242,8 @@ function drawLight(lx, ly, idx) {
     stroke(255);
     strokeWeight(4);
 
-    lx = map(noise(frameCount / 400 + 100 * idx), 0, 1, -3, 3);
-    ly = map(noise(frameCount / 400 + 200 * idx), 0, 1, -3, 3);
+    lx = map(noise(frameCount / 400 + 100 * idx), 0, 1, -2, 2);
+    ly = map(noise(frameCount / 400 + 200 * idx), 0, 1, -2, 2);
 
     //light1
     if (idx == 0 && showLight0 == true) {
@@ -468,13 +468,10 @@ function drawFrog(fx, fy) {
     //moving whole frog
     push();
 
-
-
-
     translate(fx, fy);
 
 
-    if (frameCount % 15 == 14) {
+    if (frameCount % 50 == 49) {
         targetX = random(frogX - 100, frogX + 100);
         targetY = random(frogY - 100, frogY + 100);
     }
