@@ -148,6 +148,7 @@ class ChaeDancer {
     ellipse(22, -8, 6, 5);
     fill(0);
     if (this.mouseOver == true) {
+      thi
       text(">", 5, -11);
       text("<", 15, -11);
     } else {
