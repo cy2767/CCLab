@@ -1,30 +1,153 @@
 let mapImg;
+let sunImg = [];
+let noRayImg = [];
+let rayImg = [];
+
+// let suns = [];
+// let curSun;
+let noRay;
+let ray;
 let xOff = 0; //for scrolling
+
 let rivers = [];
-let riverWords = ['river', '강', 'río', 'rivière', 'fluss', 'fiume', '河'];
+let riverWords = [
+  "Water",
+  "Agua",
+  "Eau",
+  "Acqua",
+  "Wasser",
+  "Água",
+  "Water",
+  "Vatten",
+  "Vann",
+  "Vand",
+  "Вода",
+  "Woda",
+  "Voda",
+  "Νερό",
+  "Aqua",
+  "Uisce",
+  "Dŵr",
+  "水",
+  "물",
+  "Su",
+  "Air",
+  "Vesi",
+  "Víz",
+  "Maji",
+  "Nước",
+  "น้ำ",
+  "Tubig",
+  "Ус",
+  "Yaku",
+  "ਪਾਣੀ",
+  "Apă",
+  "Omi",
+  "Air",
+];
+
 let others = [];
 
 let trees = [];
-let treeLang = ['English', 'German', 'French', 'Spanish', 'Italian', 'Portuguese', 'Dutch', 'Swedish', 'Danish', 'Norwegian', 'Finnish', 'Russian', 'Georgian', 'Japanese', 'Chinese', 'Korean'];
-let treeWords = ['木', '树', 'Tre', 'Árbol', 'Albero', 'Árvore', 'Boom', 'Träd', 'Træ', 'Arbre', 'Puu', 'Дерево', 'ხე', 'Tree', 'Baum', '나무'];
-let treesX = [170, 170, 170, 170, 170, 170, 120, 120, 220, 220, 310, 270, 50, 50, 80, 80];
-let treesY = [350, 310, 270, 230, 190, 130, 180, 80, 170, 100, 180, 80, 170, 100, 160, 50];
+let treeLang = [
+  "English",
+  "German",
+  "French",
+  "Spanish",
+  "Italian",
+  "Portuguese",
+  "Dutch",
+  "Swedish",
+  "Danish",
+  "Norwegian",
+  "Finnish",
+  "Russian",
+  "Georgian",
+  "Japanese",
+  "Chinese",
+  "Korean",
+];
+let treeWords = [
+  "木",
+  "树",
+  "Tre",
+  "Árbol",
+  "Albero",
+  "Árvore",
+  "Boom",
+  "Träd",
+  "Træ",
+  "Arbre",
+  "Puu",
+  "Дерево",
+  "ხე",
+  "Tree",
+  "Baum",
+  "나무",
+];
+let treesX = [
+  170,
+  170,
+  170,
+  170,
+  170,
+  170,
+  120,
+  120,
+  220,
+  220,
+  310,
+  270,
+  50,
+  50,
+  80,
+  80,
+];
+let treesY = [
+  350,
+  310,
+  270,
+  230,
+  190,
+  130,
+  180,
+  80,
+  170,
+  100,
+  180,
+  80,
+  170,
+  100,
+  160,
+  50,
+];
 
 function preload() {
   mapImg = loadImage("map.png");
+  sunImg.push(loadImage("suns.png"));
 }
 
 function setup() {
-  let canvas = createCanvas(800, 500);
-  canvas.parent("p5-canvas-container");
   createCanvas(800, 500); //windowWidth, windowHeight functionwindowResized in p5
 
-  //rivers.push(new River(mouseX, mouseY, "river"));
-  //rivers.push(new River(mouseX, mouseY, "river"));
-  for (let i = 0; i < riverWords.length; i++) {
-    rivers.push(new River(riverWords[i]));
+  //SUN
+  eraseBg(sunImg, 10);
+  noRay = crop(sunImg, 0, 0, 300, 210);
+  //noRay = sunImg.get(30, 0, 300, 180);
+  ray = crop(sunImg, 0, 250, 300, 500);
+  //ray = sunImg.get(0, 200, 300, 500);
+  // suns.push(noRay);
+  // suns.push(ray);
+  // curSun = 0;
+  sun = new Sun();
+
+  //RIVER
+  //hard coded number of water words
+  for (let i = 0; i < 75; i++) {
+    rivers.push(new River(riverWords[i % riverWords.length]));
   }
 
+  //TREE
   for (let i = 0; i < treeWords.length; i++) {
     trees.push(new Tree(treeWords[i], treesX[i], treesY[i]));
     console.log(treeWords[i]);
@@ -33,30 +156,48 @@ function setup() {
 
 function draw() {
   console.log(mouseX, mouseY);
-  image(mapImg, 0, 0);
-  //background(220);
+  //image(mapImg, 0, 0);
+  background(255);
 
+  //SUN
+  sun.display();
+  sun.move();
 
+  //RIVER
   //if put rivers.push in draw, keep creating words
   for (let i = 0; i < rivers.length; i++) {
     rivers[i].display();
     rivers[i].move();
-    rivers[i].checkOverlap(rivers); //calling new method
   }
 
-  //trees
+  //  for (let i = 0; i < rivers.length; i--) {
+  //   if (rivers[i].isOverWater == false) {
+  //     console.log("respawn");
+  //     // rivers.push(new River(rivers[i].rText));
+  //     // rivers.splice(i, 1);
+  //     for (let tries = 0; tries < 100; tries++) {
+  //       let x = random(0, width);
+  //       let y = random(0, height);
+  //       if (this.isOverWater(x, y) == true) {
+  //         this.x = x;
+  //         this.y = y;
+  //         break; // stop the loop right away
+  //       }
+  //     }
+  //   }
+  // }
+
+  //TREES
   for (let i = 0; i < trees.length; i++) {
     trees[i].display();
   }
   //console.log(trees);
 
+  //SCROLL
   if (keyIsPressed) {
     scroll();
   }
-
-
 }
-
 
 class Tree {
   constructor(tText, x, y) {
@@ -69,60 +210,66 @@ class Tree {
   }
 
   display() {
-    fill(0);
+    fill(15, 92, 20);
     textSize(this.size);
     text(this.tText, this.x, this.y);
     //console.log(trees);
   }
 }
 
-
 class River {
   constructor(rText) {
-    this.x = random(0, width);
-    //want to make not spawn one each other + spawn in river
-    this.y = random(400, height);
+    //teleporting method
+    for (let n = 0; n < 50; n++) {
+      for (let tries = 0; tries < 100; tries++) {
+        let x = random(0, width);
+        let y = random(0, height);
+        if (this.isOverWater(x, y) == true) {
+          this.x = x;
+          this.y = y;
+          break; // stop the loop right away
+        }
+      }
+    }
+    //this.y = random(400, height);
     this.rText = rText;
     this.size = random(20, 30);
     //color
     this.speedX = random(3, 20);
     this.speedY = random(-3, 3);
-    this.isTouching = false;
     this.overWater = false;
   }
 
   display() {
-    //textSize(15);
-    fill(0); //replace with color variable later
-    textSize(this.size);
-    text(this.rText, this.x, this.y);
+    if (this.isOverWater(this.x, this.y) == true) {
+      //textSize(15);
+      fill("blue");
+      textSize(this.size);
+      text(this.rText, this.x, this.y);
+    }
+  }
+
+  isOverWater(x, y) {
+    let c = mapImg.get(x, y);
+    if (blue(c) == 255 && red(c) == 13) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   move() {
-    //have to update so that words don't spawn on top of each other
-    if (this.isTouching == true) {
-      this.speedX = -1 * this.speedX;
-      this.speedY = -1 * this.speedY;
-      //console.log("touching");
-      this.isTouching = false;
-    }
-    //want to stay within water
-    //let c = mapImg.get(mouseX, mouseY);
     let c = mapImg.get(this.x, this.y);
     if (blue(c) == 255 && red(c) == 13) {
       this.overWater = true;
-      //console.log("over water");
     } else {
       this.overWater = false;
-      //console.log("out of bounds");
     }
 
-    //can I make it visible only when it is over blue? right now loops around and appears in white
-    if (this.overWater == false) {
-      this.speedY = -1 * this.speedY;
-      this.overWater = true;
-    }
-
+    // if (this.overWater == false) {
+    //   this.speedY = -1 * this.speedY;
+    //   this.overWater = true;
+    // }
 
     //updating
     this.x += this.speedX;
@@ -134,35 +281,54 @@ class River {
     );
     this.speedX = map(noiseVal, 0, 1, -0.5, 1.5);
     this.speedY = map(noiseVal, 0, 1, -1.5, 1.5);
-    //this.speedY += 0.1;
 
-    if (this.x > width) {
-      this.x = 47;
-      this.y = 450;
-    }
-  }
-
-  checkOverlap(others) {
-    for (let i = 0; i < others.length; i++) {
-      if (others[i] != this) {
-        let d = dist(this.x, this.y, others[i].x, others[i].y);
-        if (d < this.size / 2 + others[i].size / 2) { //don't know if this number is good for this.size
-          this.isTouching = true;
+    if (this.overWater == false) {
+      console.log("respawn");
+      // rivers.push(new River(rivers[i].rText));
+      // rivers.splice(i, 1);
+      for (let tries = 0; tries < 100; tries++) {
+        let x = random(0, width);
+        let y = random(0, height);
+        if (this.isOverWater(x, y) == true) {
+          this.x = x;
+          this.y = y;
+          break; // stop the loop right away
         }
       }
     }
-  } //end of check overlap
+  }
+}
+
+class Sun {
+  constructor() {
+    this.speed = 5; //play with number
+  }
+  display() {
+    if (mouseX > 630 && mouseX < 730 && mouseY > 40 && mouseY < 130) {
+      image(ray[0], 565, 22);
+    } else {
+      image(noRay[0], 580, 20);
+    }
+    //image(suns[curSun], 600, 20, suns[0].width * 0.8, suns[0].height * 0.8);
+  }
+  move() {
+    let d = dist(mouseX, mouseY, 686, 85);
+    if (d < 50) {
+      push();
+      translate(0, 0);
+      imageMode(CENTER);
+      rotate(radians(frameCount));
+      //display();
+      pop();
+    }
+  }
 }
 
 function scroll() {
   let xSize = 1200;
   //let x = 250; //for example
 
-
-
-
   //river class
-
 
   // circle((xOff + x) % xSize - 50, height/2, 100);
   // console.log(xOff, xSize, (xOff + x) % xSize);
@@ -177,8 +343,31 @@ function scroll() {
     rivers[i].x = (rivers[i].x + xOff) % xSize;
     console.log(xOff, xSize, (xOff + rivers[i].x) % xSize);
   }
-
-
 }
 
+//IMAGE HELPER FUNCTIONS from reci8
+function crop(imgs, x, y, w, h) {
+  let cropped = [];
+  for (let i = 0; i < imgs.length; i++) {
+    cropped.push(imgs[i].get(x, y, w, h));
+  }
+  return cropped;
+}
 
+function eraseBg(imgs, threshold = 10) {
+  for (let i = 0; i < imgs.length; i++) {
+    let img = imgs[i];
+    img.loadPixels();
+    for (let j = 0; j < img.pixels.length; j += 4) {
+      let d = 255 - img.pixels[j];
+      d += 255 - img.pixels[j + 1];
+      d += 255 - img.pixels[j + 2];
+      if (d < threshold) {
+        img.pixels[j + 3] = 0;
+      }
+    }
+    img.updatePixels();
+  }
+  // this function uses the pixels array
+  // we will cover this later in the semester - stay tuned
+}
