@@ -145,8 +145,8 @@ function preload() {
   sunImg.push(loadImage("suns.png"));
 
   //sound
-  leafSound = loadSound("stek59__autumn-wind-and-dry-leaves.wav");
-  riverSound = loadSound("339324_inspectorj_stream-water-c.mp3");
+  leafSound = loadSound("assets/457318__stek59__autumn-wind-and-dry-leaves.wav");
+  riverSound = loadSound("assets/339324_inspectorj_stream-water-c.mp3");
 
   //would I have to preload all the audios for tree pronunciation here? = need a variable for all of them? can I push to array here without needing to make a variable name (ex. can just use treeFiles[i])
 }
