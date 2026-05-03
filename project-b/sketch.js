@@ -1,3 +1,87 @@
+//INTRO
+let state;
+let earthImg;
+
+let earths = [];
+let earthWords = [
+  "Earth",
+  "Tierra",
+  "Terre",
+  "Terra",
+  "Erde",
+  "Terra",
+  "Aarde",
+  "Jord",
+  "Jord",
+  "Jord",
+  "Земля",
+  "Ziemia",
+  "Země",
+  "Γη",
+  "Terra",
+  "Talamh",
+  "Daear",
+  "पृथ्वी",
+  "زمین",
+  "地球",
+  "地球",
+  "지구",
+  "Dünya",
+  "الأرض",
+  "Bumi",
+  "Maa",
+  "Föld",
+  "Dunia",
+  "Trái Đất",
+  "โลก",
+  "Daigdig",
+  "பூமி",
+  "Дэлхий",
+  "Pacha",
+  "ਧਰਤੀ",
+  "Pământ",
+  "Ayé",
+  "Bumi",
+];
+let earthN = 100;
+
+let enters = [];
+let enterWords = [
+  "enter",
+  "comienzo",
+  "début",
+  "inizio",
+  "start",
+  "início",
+  "start",
+  "Cтарт",
+  "start",
+  "začátek",
+  "Aρχή",
+  "initium",
+  "tús",
+  "dechrau",
+  "开始",
+  "開始",
+  "시작",
+  "başlangıç",
+  "mulai",
+  "alku",
+  "kezdet",
+  "mwanzo",
+  "bắt đầu",
+  "เริ่ม",
+  "simula",
+  "Эхлэл",
+  "Qallariy",
+  "ਸ਼ੁਰੂ",
+  "Început",
+  "ibẹrẹ",
+  "mula",
+];
+let curText;
+let hoverEnter = 0;
+
 let mapImg;
 let sunImg = [];
 let noRayImg = [];
@@ -134,40 +218,129 @@ let treeFiles = [];
 let switchLeaves = true; //boolean switch
 let count;
 
+let clouds = [];
+let cloudWords = [
+  "Cloud",
+  "Nube",
+  "Nuage",
+  "Nuvola",
+  "Wolke",
+  "Nuvem",
+  "Wolk",
+  "Moln",
+  "Skye",
+  "Sky",
+  "Облако",
+  "Chmura",
+  "Mrak",
+  "Σύννεφο",
+  "Nubes",
+  "Scamall",
+  "Cwmwl",
+  "云",
+  "雲",
+  "구름",
+  "Bulut",
+  "Awan",
+  "Pilvi",
+  "Felhő",
+  "Wingu",
+  "Mây",
+  "เมฆ",
+  "Ulap",
+  "Үүл",
+  "Puyu",
+  "ਬੱਦਲ",
+  "Nor",
+  "Awọsanma",
+  "Awan",
+];
+
+let rains = [];
+let rainWords = [
+  "Rain",
+  "Lluvia",
+  "Pluie",
+  "Pioggia",
+  "Regen",
+  "Chuva",
+  "Regen",
+  "Regn",
+  "Regn",
+  "Regn",
+  "До́ждь",
+  "Deszcz",
+  "Déšť",
+  "Βροχή",
+  "Pluvia",
+  "Báisteach",
+  "Glaw",
+  "बारिश",
+  "باران",
+  "雨",
+  "雨",
+  "비",
+  "Yağmur",
+  "مطر",
+  "Hujan",
+  "Sade",
+  "Eső",
+  "Mvua",
+  "Mưa",
+  "ฝน",
+  "Ulan",
+  "மழை",
+  "Бороо",
+  "Para",
+  "ਮੀਂਹ",
+  "Ploaie",
+  "Òjò",
+  "Hujan",
+];
+
 //sounds
 let leafSound;
 let riverSound; //Stream, Water, C.wav by InspectorJ -- https://freesound.org/s/339324/ -- License: Attribution 4.0
+let rainSound;
 let selected;
 let lang;
 
 function preload() {
-  mapImg = loadImage("map-edit1.png");
+  mapImg = loadImage("assets/map-edit3.png");
   sunImg.push(loadImage("suns.png"));
+  earthImg = loadImage("assets/earthMap-800.png");
 
   //sound
-  leafSound = loadSound("stek59__autumn-wind-and-dry-leaves.wav");
-  riverSound = loadSound("339324_inspectorj_stream-water-c.mp3");
+  leafSound = loadSound("assets/457318__stek59__autumn-wind-and-dry-leaves.wav");
+  riverSound = loadSound("assets/339324_inspectorj_stream-water-c.mp3");
+  rainSound = loadSound("assets/28283__acclivity__undertreeinrain.mp3");
 
   //would I have to preload all the audios for tree pronunciation here? = need a variable for all of them? can I push to array here without needing to make a variable name (ex. can just use treeFiles[i])
 }
 
 function setup() {
   createCanvas(800, 500); //windowWidth, windowHeight functionwindowResized in p5
+  state = 1;
+
+  //INTRO
+  for (let i = 0; i < earthN; i++) {
+    //want to push more
+    earths.push(new Earth(earthWords[i % earthWords.length]));
+  }
+
+  //only push 1 because only have 1 word showing at a time
+  // if have more in loop, will all flash when go thorugh random words
+  enters.push(new Enter("enter"));
 
   //SUN
   eraseBg(sunImg, 10);
   noRay = crop(sunImg, 0, 0, 300, 210);
-  //noRay = sunImg.get(30, 0, 300, 180);
   ray = crop(sunImg, 0, 200, 300, 250);
-  //ray = sunImg.get(0, 200, 300, 500);
-  // suns.push(noRay);
-  // suns.push(ray);
-  // curSun = 0;
   sun = new Sun();
 
   //RIVER
   //hard coded number of water words
-  for (let i = 0; i < 75; i++) {
+  for (let i = 0; i < 150; i++) {
     rivers.push(new River(riverWords[i % riverWords.length]));
   }
 
@@ -176,6 +349,17 @@ function setup() {
     //want to push more
     trees.push(new Tree(treeWords[i % treeWords.length]));
   }
+
+  //CLOUD
+  for (let i = 0; i < 20; i++) {
+    //want to push more
+    clouds.push(new Cloud(cloudWords[i % cloudWords.length]));
+  }
+
+  //RAIN
+  for (let i = 0; i < 20; i++) {
+    rains.push(new Rain(rainWords[i % rainWords.length]))
+  }
 }
 
 function draw() {
@@ -183,6 +367,14 @@ function draw() {
   //image(mapImg, 0, 0);
   background(255);
 
+  //STATES turn back on later
+  // if (state == 1) {
+  //   intro();
+  //   enterClicked();
+  // } else if (state == 2) {
+  //all the other functions (everything in draw right now)
+  push();
+  translate(-xOff, 0);
   //SUN
   sun.display();
   //sun.move();
@@ -200,15 +392,181 @@ function draw() {
     trees[i].display();
     trees[i].move();
     trees[i].sound(); //can I call my sound function like this
-    // if(trees[i].isFalling == true){
-    //   console.log("respawning");
-    //   //trees.push(new Tree(this.tText));
-    // }
+  }
+
+  //CLOUDS
+  for (let i = 0; i < clouds.length; i++) {
+    clouds[i].display();
+    clouds[i].move();
+  }
+
+  //RAIN
+  for (let i = 0; i < rains.length; i++) {
+    rains[i].display();
+    rains[i].move();
+    rains[i].sound();
   }
 
   //SCROLL
   if (keyIsPressed) {
     scroll();
+  }
+
+  pop();
+  //} //END OF INSIDE STATE 2
+}
+
+function intro() {
+  for (let i = 0; i < earths.length; i++) {
+    earths[i].display();
+    earths[i].move();
+  }
+  earthRespawn();
+
+  //title
+  fill(0);
+  textSize(50);
+  text("Our wor ds!", width / 2, 75);
+  if (frameCount % 60 > 20) {
+    fill(255);
+  } else {
+    fill(0, 102, 19);
+  }
+  text("l", width / 2 + 55, 75); //blinking letter l
+
+  for (let i = 0; i < enters.length; i++) {
+    enters[i].display();
+  }
+
+  //background...earth words going through?
+}
+
+class Earth {
+  constructor(eText) {
+    textAlign(CENTER);
+    for (let n = 0; n < 75; n++) {
+      //what does this n do
+      //hard coded to 75?
+      for (let tries = 0; tries < 100; tries++) {
+        let x = random(0, width);
+        let y = random(0, height);
+        if (this.isOverEarth(x, y) == true) {
+          this.x = x;
+          this.y = y;
+          break; // stop the loop right away
+        }
+      }
+    }
+
+    //this.y = random(400, height);
+    this.eText = eText;
+    this.size = 20;
+    //color
+    this.speedX = 0.5;
+    this.overEarth = false;
+  }
+
+  display() {
+    let d = dist(mouseX + xOff, mouseY, this.x, this.y);
+    console.log(mouseX, mouseY, xOff);
+    if (d < 10) {
+      this.size = 40;
+    } else {
+      this.size = 20;
+    }
+
+    let c = earthImg.get(this.x, this.y);
+    if (blue(c) == 230) {
+      fill(0, 164, 224);
+    } else if (blue(c) == 19) {
+      fill(0, 102, 19);
+    }
+
+    if (this.isOverEarth(this.x, this.y) == true) {
+      textSize(this.size);
+      text(this.eText, this.x, this.y);
+    }
+  }
+
+  move() {
+    let c = earthImg.get(this.x, this.y);
+    if (blue(c) == 230 || blue(c) == 19) {
+      this.overEarth = true;
+    } else {
+      this.overEarth = false;
+    }
+    this.x += this.speedX;
+  }
+
+  isOverEarth(x, y) {
+    let c = earthImg.get(x, y);
+    if (blue(c) == 230 || blue(c) == 19) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
+class Enter {
+  constructor(enText) {
+    textAlign(CENTER);
+    this.enText = enText;
+    this.size = 40;
+    this.x = width / 2;
+    this.y = 450;
+  }
+
+  display() {
+    fill(0);
+    textSize(this.size);
+    if (mouseOverEnter() == true) {
+      //for(let i = 0; i < enterWords.length; i++){
+      if (frameCount % 20 == 19) {
+        console.log("frameCount test");
+        //curText = enterWords[i % enterWords.length];
+        curText = enterWords[int(random(enterWords.length))];
+      }
+      //}
+    } else {
+      curText = enterWords[0];
+      this.hoverEnter = 0;
+    }
+
+    text(curText, this.x, this.y);
+  }
+
+  move() { }
+}
+
+function earthRespawn() {
+  for (let i = earths.length - 1; i >= 0; i--) {
+    if (earths[i].overEarth == false) {
+      // console.log("not over earth");
+      // console.log(earths[i].isOverEarth);
+      earths.splice(i, 1);
+    }
+  }
+
+  //console.log(earths.length);
+
+  if (earths.length != earthN) {
+    //console.log("earth length not 100");
+    earths.push(new Earth(earthWords[int(random(earthWords.length))])); //earthWords[] only takes int not decimals
+  }
+}
+
+function mouseOverEnter() {
+  if (mouseX + xOff > 340 && mouseX + xOff < 450 && mouseY > 415 && mouseY < 460) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function enterClicked() {
+  if (mouseOverEnter() == true && mouseIsPressed == true) {
+    state = 2;
   }
 }
 
@@ -279,7 +637,7 @@ class Tree {
 
   mouseOverLeaf(mouseX, mouseY) {
     let c = mapImg.get(this.x, this.y);
-    let d = dist(mouseX, mouseY, this.x, this.y);
+    let d = dist(mouseX + xOff, mouseY, this.x, this.y);
     if (d < 20 && blue(c) == 0 && green(c) == 255) {
       return true;
     } else {
@@ -288,7 +646,7 @@ class Tree {
   }
 
   move() {
-    let d = dist(mouseX, mouseY, this.x, this.y);
+    let d = dist(mouseX + xOff, mouseY, this.x, this.y);
     let c = mapImg.get(this.x, this.y);
     let noiseRate = map(noise(frameCount), 0, 1, 5, 30);
 
@@ -301,7 +659,7 @@ class Tree {
         this.startHover = millis();
       }
       // startHover is guaranteed to be set here (and not 0)
-      if (millis() - this.startHover > 3000) {
+      if (millis() - this.startHover > 1500) {
         console.log("start falling");
         this.isFalling = true;
         //this.respawn = true; //new function??
@@ -316,9 +674,9 @@ class Tree {
         this.x += map(sin(frameCount / 15 + this.fallOffset), -1, 1, -2, 2);
         //way to add offset so leaves dont' all move together? - changed sin cycle startpoint
       } else if (this.hasRespawned == false) {
-        //confusing
+        //switch
         this.hasRespawned = true;
-        console.log("new leaf respawned");
+        console.log("new tree respawned");
 
         trees.push(new Tree(this.tText));
       }
@@ -343,11 +701,11 @@ class Tree {
   sound() {
     //is this how while works?
     if (
-      this.isOverTree(mouseX, mouseY) == true &&
+      this.isOverTree(mouseX + xOff, mouseY) == true &&
       leafSound.isPlaying() == false
     ) {
       leafSound.loop(); //vs .play(); is there a way to lerp sound?
-    } else if (this.isOverTree(mouseX, mouseY) == false) {
+    } else if (this.isOverTree(mouseX + xOff, mouseY) == false) {
       leafSound.pause();
     }
   }
@@ -356,7 +714,8 @@ class Tree {
 class River {
   constructor(rText) {
     //teleporting method
-    for (let n = 0; n < 50; n++) {
+    for (let n = 0; n < treeWords.length; n++) {
+      //why was it at n < 50
       for (let tries = 0; tries < 100; tries++) {
         let x = random(0, width);
         let y = random(0, height);
@@ -439,7 +798,7 @@ class River {
   }
 
   sound() {
-    if (this.isOverWater(mouseX, mouseY) == true) {
+    if (this.isOverWater(mouseX + xOff, mouseY) == true) {
       if (riverSound.isPlaying() == false) {
         riverSound.play();
       }
@@ -471,7 +830,7 @@ class Sun {
 
   move() {
     //didn't work
-    let d = dist(mouseX, mouseY, 686, 85);
+    let d = dist(mouseX + xOff, mouseY, 686, 85);
     if (d < 50) {
       push();
       translate(0, 0);
@@ -483,7 +842,7 @@ class Sun {
   }
 
   mouseOverSun() {
-    let d = dist(mouseX, mouseY, 686, 85);
+    let d = dist(mouseX + xOff, mouseY, 686, 85);
     if (d < 50) {
       return true;
     } else {
@@ -492,46 +851,219 @@ class Sun {
   }
 }
 
-function mouseClicked() {
-  //turned off for debugging purposes
-  //for tree
-  if (trees[0].isOverTree(mouseX, mouseY) == true) {
-    //go through all the tree words to see which
-    for (let i = 0; i < trees.length; i++) {
-      //why does it say trees.length is not a function
-      let d = dist(mouseX, mouseY, trees[i].x, trees[i].y);
-      if (d < 5) {
-        //range? so many overlapped
-        selected = treeLangs[i];
-      } else {
-        selected = null; //from lilypad dragging
+class Cloud {
+  constructor(cText) {
+    //teleporting method
+    for (let n = 0; n < cloudWords.length; n++) {
+      //why was it at n < 50
+      for (let tries = 0; tries < 100; tries++) {
+        let x = random(0, width);
+        let y = random(0, height);
+        if (this.isOverCloud(x, y) == true) {
+          this.x = x;
+          this.y = y;
+          break; // stop the loop right away
+        }
       }
     }
-    //if click, play sound?
-    lang = selected + "Sound";
-    lang.play(); //would this work to hold the string?
+    this.cText = cText;
+    this.size = 20;
+    this.col = color(212, 230, 248);//light bluey
+    this.angle = 0;
+  }
+
+  display() {
+    let d = dist(mouseX + xOff, mouseY, this.x, this.y);
+    if (d < 30) {
+      //this.col = color(181, 178, 170); //darker grey
+      this.col = color(227, 190, 195); //pink!
+    }
+    else {
+      //this.col = color(222, 220, 217); //light grey
+      //this.col = color(253, 215, 195); //yellowy
+      this.col = color(212, 230, 248);//light bluey 
+    }
+
+    textAlign(CENTER, CENTER);
+    let c = mapImg.get(this.x, this.y);
+    fill(this.col);
+    textSize(this.size);
+    text(this.cText, this.x, this.y);
+  }
+
+  isOverCloud(x, y) { //having issues
+    let c = mapImg.get(x, y);
+    if (blue(c) == 0 && red(c) == 0 && green(c) == 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  move() {
+    this.x += map(sin(frameCount / 20), -10, 10, -2, 2); //made sin range bigger to make cloud move less
+    this.y += map(sin(frameCount / 30), -10, 10, -1, 1);
+  }
+
+
+}
+
+class Rain {
+  constructor(raText) {
+    //teleporting method
+    for (let n = 0; n < 75; n++) {
+      for (let tries = 0; tries < 100; tries++) {
+        let x = random(0, width);
+        let y = random(0, height);
+        if (this.isInCloud(x, y) == true) { //arguments x y 
+          this.x = x;
+          this.y = y;
+          break; // stop the loop right away
+        }
+      }
+    }
+    this.raText = raText;
+    this.size = random(10, 15);
+    this.col = color(255);
+    this.angle = 90;
+    this.rand = random(10);
+    this.startHover = 0;
+    this.isFalling = false;
+    this.ySpeed = random(1, 3);
+    this.hasRespawned = false;
+
+    let c = mapImg.get(this.x, this.y);
+    if (this.rand < 5) {
+      this.col = color(120, 187, 255);
+    } else {
+      this.col = color(46, 150, 255);
+    }
+  }
+
+  display() {
+    if (this.y < 300 && this.y > 145) {
+      textAlign(CENTER, CENTER);
+      fill(this.col);
+      textSize(this.size);
+      push();
+      translate(this.x, this.y);
+      rotate(radians(this.angle));
+      text(this.raText, 0, 0);
+      pop();
+    }
+    // else if (this.y >= 300){
+    //   this.falling = false;
+    // }
+  }
+
+  move() {
+    let d = dist(mouseX + xOff, mouseY, this.x, this.y);
+    let c = mapImg.get(this.x, this.y);
+
+    if (d < 50) {
+      if (this.startHover == 0) {
+        this.startHover = millis();
+      }
+      // startHover is guaranteed to be set here (and not 0)
+      if (millis() - this.startHover > 100) {
+        console.log("start falling");
+        this.isFalling = true;
+        //this.respawn = true; //new function??
+      }
+    }
+    else {
+      this.startHover = 0;
+    }
+
+    if (this.isFalling == true) {
+      if (this.y < 300) {
+        this.y += this.ySpeed;
+        this.size = map(sin(frameCount / 5), -1, 1, 10, 15);
+      } else if (this.hasRespawned == false) {
+        //switch
+        this.hasRespawned = true;
+        console.log("new rain respawned");
+
+        rains.push(new Rain(this.raText));
+      }
+    }
+  }
+
+  isInCloud(x, y) {
+    let c = mapImg.get(x, y); //arguments?
+    if (blue(c) == 0 && red(c) == 0 && green(c) == 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  sound() {
+    if (this.isInCloud(mouseX + xOff, mouseY) == true) {
+      if (rainSound.isPlaying() == false) {
+        rainSound.play();
+      }
+    } else {
+      rainSound.pause();
+    }
   }
 }
 
+// function mouseClicked() {
+//   //turned off for debugging purposes
+//   //for tree
+//   if (trees[0].isOverTree(mouseX, mouseY) == true) {
+//     //go through all the tree words to see which
+//     for (let i = 0; i < trees.length; i++) {
+//       //why does it say trees.length is not a function
+//       let d = dist(mouseX + xOff, mouseY, trees[i].x, trees[i].y);
+//       if (d < 5) {
+//         //range? so many overlapped
+//         selected = treeLangs[i];
+//       } else {
+//         selected = null; //from lilypad dragging
+//       }
+//     }
+//     //if click, play sound?
+//     lang = selected + "Sound";
+//     lang.play(); //would this work to hold the string?
+//   }
+// }
+
 function scroll() {
-  let xSize = 1200;
-  //let x = 250; //for example
-
-  //river class
-
-  // circle((xOff + x) % xSize - 50, height/2, 100);
-  // console.log(xOff, xSize, (xOff + x) % xSize);
-  //in xOff + x % xSize, subtract size/2 to make it loop smoothly
-
-  for (let i = 0; i < rivers.length; i++) {
-    xOff = 0;
-    if (keyIsPressed) {
-      xOff++;
-    }
-    //rivers[i].x = (rivers[i].x + xOff) % xSize - rivers[i].size/2;
-    rivers[i].x = (rivers[i].x + xOff) % xSize;
-    //console.log(xOff, xSize, (xOff + rivers[i].x) % xSize);
+  console.log(xOff);
+  if (keyCode == LEFT_ARROW) {
+    xOff -= 5;
+  } else if (keyCode == RIGHT_ARROW) {
+    xOff += 5;
   }
+
+  if (xOff >= 1200) { //1200
+    xOff = -1201; //-200
+  }
+  else if (xOff <= -1200) {
+    xOff = 1201;
+  }
+
+
+  //   let xSize = 1200;
+  //   //let x = 250; //for example
+
+  //   //river class
+
+  //   // circle((xOff + x) % xSize - 50, height/2, 100);
+  //   // console.log(xOff, xSize, (xOff + x) % xSize);
+  //   //in xOff + x % xSize, subtract size/2 to make it loop smoothly
+
+  //   for (let i = 0; i < rivers.length; i++) {
+  //     xOff = 0;
+  //     if (keyIsPressed) {
+  //       xOff++;
+  //     }
+  //     //rivers[i].x = (rivers[i].x + xOff) % xSize - rivers[i].size/2;
+  //     rivers[i].x = (rivers[i].x + xOff) % xSize;
+  //     //console.log(xOff, xSize, (xOff + rivers[i].x) % xSize);
+  //   }
 }
 
 //IMAGE HELPER FUNCTIONS from reci8
