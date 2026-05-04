@@ -83,15 +83,54 @@ let curText;
 let hoverEnter = 0;
 
 let mapImg;
-let sunImg = [];
-let noRayImg = [];
-let rayImg = [];
+let sunImg;
+//let sunImg = [];
+// let noRayImg = [];
+// let rayImg = [];
 
 // let suns = [];
 // let curSun;
-let noRay;
-let ray;
+// let noRay;
+// let ray;
 let xOff = 0; //for scrolling
+
+let suns = [];
+let sunWords = [
+  "Sun",
+  "Sol",
+  "Soleil",
+  "Sole",
+  "Sonne",
+  "Sol",
+  "Zon",
+  "Sol",
+  "Sol",
+  "Sol",
+  "Со́лнце",
+  "Słońce",
+  "Slunce",
+  "Ήλιος",
+  "Sol",
+  "Grian",
+  "Haul",
+  "太阳",
+  "太陽",
+  "태양",
+  "Güneş",
+  "Matahari",
+  "Aurinko",
+  "Nap",
+  "Jua",
+  "Mặt Trời",
+  "ดวงอาทิตย์",
+  "Araw",
+  "Нар",
+  "Inti",
+  "ਸੂਰਜ",
+  "Soare",
+  "Òòrùn",
+  "Matahari",
+];
 
 let rivers = [];
 let riverWords = [
@@ -299,11 +338,47 @@ let rainWords = [
 ];
 
 let houses = [];
-let houseWords = ["House", "Casa", "Maison", "Casa", "Haus", "Casa", "Huis", "Hus", "Hus", "Hus", "До́м", "Dom", "Dům", "Σπίτι", "Domus", "Teach", "Tŷ", "房子", "家", "집", "Ev", "Rumah", "Talo", "Ház", "Nyumba", "Nhà", "บ้าน", "Bahay", "Гэр", "Wasi", "ਘਰ", "Casă", "Ilé", "Rumah"];
+let houseWords = [
+  "House",
+  "Casa",
+  "Maison",
+  "Casa",
+  "Haus",
+  "Casa",
+  "Huis",
+  "Hus",
+  "Hus",
+  "Hus",
+  "До́м",
+  "Dom",
+  "Dům",
+  "Σπίτι",
+  "Domus",
+  "Teach",
+  "Tŷ",
+  "房子",
+  "家",
+  "집",
+  "Ev",
+  "Rumah",
+  "Talo",
+  "Ház",
+  "Nyumba",
+  "Nhà",
+  "บ้าน",
+  "Bahay",
+  "Гэр",
+  "Wasi",
+  "ਘਰ",
+  "Casă",
+  "Ilé",
+  "Rumah",
+];
 // let houseXs = [];
 // let houseYs = []; //I want a grid
 let houseXYs = [];
 
+let smokes = [];
 
 //sounds
 let leafSound;
@@ -311,12 +386,13 @@ let riverSound; //Stream, Water, C.wav by InspectorJ -- https://freesound.org/s/
 let rainSound;
 let houseSound;
 //2024.02.01 Sauteing food by TeamEnFil -- https://freesound.org/s/721390/ -- License: Attribution 4.0
+let sunSound;
 let selected;
 let lang;
 
 function preload() {
   mapImg = loadImage("assets/map-edit4.png");
-  sunImg.push(loadImage("suns.png"));
+  sunImg = loadImage("assets/mapSun-edit2.png");
   earthImg = loadImage("assets/earthMap-800.png");
 
   //sound
@@ -324,14 +400,13 @@ function preload() {
   riverSound = loadSound("assets/339324_inspectorj_stream-water-c.mp3");
   rainSound = loadSound("assets/28283__acclivity__undertreeinrain.mp3");
   houseSound = loadSound("assets/721390_teamenfil_202402.mp3");
-
+  sunSound = loadSound("assets/52740_eric5335_town-or-suburbs-amb-spring-day.mp3");
 
   leafSound.setVolume(0);
   riverSound.setVolume(0);
   rainSound.setVolume(0);
   houseSound.setVolume(0);
-
-  //would I have to preload all the audios for tree pronunciation here? = need a variable for all of them? can I push to array here without needing to make a variable name (ex. can just use treeFiles[i])
+  sunSound.setVolume(0);
 }
 
 function setup() {
@@ -349,10 +424,9 @@ function setup() {
   enters.push(new Enter("enter"));
 
   //SUN
-  eraseBg(sunImg, 10);
-  noRay = crop(sunImg, 0, 0, 300, 210);
-  ray = crop(sunImg, 0, 200, 300, 250);
-  sun = new Sun();
+  for (let i = 0; i < 30; i++) {
+    suns.push(new Sun(sunWords[i % sunWords.length]));
+  }
 
   //RIVER
   //hard coded number of water words
@@ -374,14 +448,18 @@ function setup() {
 
   //RAIN
   for (let i = 0; i < 20; i++) {
-    rains.push(new Rain(rainWords[i % rainWords.length]))
+    rains.push(new Rain(rainWords[i % rainWords.length]));
   }
 
   //HOUSE GRID?
-  for (let y = 45; y < 345; y = y + 16) { //rows
+  for (let y = 45; y < 345; y = y + 16) {
+    //rows
     for (let x = 800 + xOff; x < 1300 + xOff; x = x + 16) {
       let c = mapImg.get(x, y);
-      if ((red(c) == 80 && green(c) == 33 && blue(c) == 174) || (red(c) == 140 && green(c) == 82 && blue(c) == 255)) {
+      if (
+        (red(c) == 80 && green(c) == 33 && blue(c) == 174) ||
+        (red(c) == 140 && green(c) == 82 && blue(c) == 255)
+      ) {
         let pos = { x: x, y: y }; //google says can store coordinates as objects in array like this
         houseXYs.push(pos);
         //break;
@@ -390,76 +468,101 @@ function setup() {
   }
   //HOUSE
   for (let i = 0; i < 140; i++) {
-    houses.push(new House(houseWords[i % houseWords.length]))
+    houses.push(new House(houseWords[i % houseWords.length]));
+  }
+
+  //SMOKE
+  for (let i = 0; i < 30; i++) {
+    smokes.push(new Smoke(houseWords[i % houseWords.length]));
   }
 }
 
 function draw() {
-  console.log(mouseX, mouseY);
-
+  //console.log(mouseX + xOff, mouseY);
   //image(mapImg, 0, 0);
-  background(255);
+  //image(sunImg, 0, 0);
+  //left side black right side white (fade)
+  background(0);
+  //background(135, 206, 235); //sky blue
 
   //STATES turn back on later
-  // if (state == 1) {
-  //   intro();
-  //   enterClicked();
-  // } else if (state == 2) {
-  //all the other functions (everything in draw right now)
-  push();
-  translate(-xOff, 0);
-  //SUN
-  sun.display();
-  //sun.move();
+  if (state == 1) {
+    intro();
+    enterClicked();
+  } else if (state == 2) {
+    //all the other functions (everything in draw right now)
+    push();
+    translate(-xOff, 0);
+    //SUN
+    // sun.display();
+    // sun.move();
 
-  //RIVER
-  //if put rivers.push in draw, keep creating words
-  for (let i = 0; i < rivers.length; i++) {
-    rivers[i].display();
-    rivers[i].move();
-    rivers[i].sound();
-  }
-
-  //TREES
-  for (let i = 0; i < trees.length; i++) {
-    trees[i].display();
-    trees[i].move();
-    trees[i].sound(); //can I call my sound function like this
-  }
-
-  //CLOUDS
-  for (let i = 0; i < clouds.length; i++) {
-    clouds[i].display();
-    clouds[i].move();
-  }
-
-  //RAIN
-  for (let i = 0; i < rains.length; i++) {
-    rains[i].display();
-    rains[i].move();
-    rains[i].sound();
-  }
-
-  //HOUSE
-  for (let i = 0; i < houses.length; i++) {
-    houses[i].display();
-    // houses[i].move(); //unlock
-    houses[i].sound();
-  }
-
-  for (let i = rains.length - 1; i <= 0; i--) {
-    if (rains[i].dead == true) {
-      rains.splice(i, 1);
+    //SUN
+    for (let i = 0; i < suns.length; i++) {
+      suns[i].display();
+      suns[i].move();
+      suns[i].sound();
     }
-  }
 
-  //SCROLL
-  if (keyIsPressed) {
-    scroll();
-  }
+    //RIVER
+    //if put rivers.push in draw, keep creating words
+    for (let i = 0; i < rivers.length; i++) {
+      rivers[i].display();
+      rivers[i].move();
+      rivers[i].sound();
+    }
 
-  pop();
-  //} //END OF INSIDE STATE 2
+    //TREES
+    for (let i = 0; i < trees.length; i++) {
+      trees[i].display();
+      trees[i].move();
+      trees[i].sound(); //can I call my sound function like this
+    }
+
+    //CLOUDS
+    for (let i = 0; i < clouds.length; i++) {
+      clouds[i].display();
+      clouds[i].move();
+    }
+
+    //RAIN
+    for (let i = 0; i < rains.length; i++) {
+      rains[i].display();
+      rains[i].move();
+      rains[i].sound();
+    }
+
+    //HOUSE
+    for (let i = 0; i < houses.length; i++) {
+      houses[i].display();
+      // houses[i].move(); //unlock
+      houses[i].sound();
+    }
+
+    //SMOKE
+    for (let i = 0; i < smokes.length; i++) {
+      smokes[i].display();
+      smokes[i].move();
+    }
+
+    for (let i = rains.length - 1; i >= 0; i--) {
+      if (rains[i].dead == true) {
+        rains.splice(i, 1);
+      }
+    }
+    for (let i = smokes.length - 1; i >= 0; i--) {
+      if (smokes[i].dead == true) {
+        smokes.splice(i, 1);
+      }
+    }
+
+    //SCROLL
+    if (keyIsPressed) {
+      scroll();
+    }
+
+    pop();
+  } //END OF INSIDE STATE 2
 }
 
 function intro() {
@@ -470,11 +573,11 @@ function intro() {
   earthRespawn();
 
   //title
-  fill(0);
+  fill(255);
   textSize(50);
   text("Our wor ds!", width / 2, 75);
   if (frameCount % 60 > 20) {
-    fill(255);
+    fill(0);
   } else {
     fill(0, 102, 19);
   }
@@ -490,6 +593,8 @@ function intro() {
 class Earth {
   constructor(eText) {
     textAlign(CENTER);
+    this.x = 0;
+    this.y = 0;
     for (let n = 0; n < 75; n++) {
       //what does this n do
       //hard coded to 75?
@@ -564,7 +669,7 @@ class Enter {
   }
 
   display() {
-    fill(0);
+    fill(255);
     textSize(this.size);
     if (mouseOverEnter() == true) {
       //for(let i = 0; i < enterWords.length; i++){
@@ -603,7 +708,12 @@ function earthRespawn() {
 }
 
 function mouseOverEnter() {
-  if (mouseX + xOff > 340 && mouseX + xOff < 450 && mouseY > 415 && mouseY < 460) {
+  if (
+    mouseX + xOff > 340 &&
+    mouseX + xOff < 450 &&
+    mouseY > 415 &&
+    mouseY < 460
+  ) {
     return true;
   } else {
     return false;
@@ -618,6 +728,8 @@ function enterClicked() {
 
 class Tree {
   constructor(tText) {
+    this.x = 0;
+    this.y = 0;
     for (let n = 0; n < 75; n++) {
       //hard coded to 75?
       for (let tries = 0; tries < 100; tries++) {
@@ -763,6 +875,8 @@ class Tree {
 
 class River {
   constructor(rText) {
+    this.x = 0;
+    this.y = 0;
     //teleporting method
     for (let n = 0; n < treeWords.length; n++) {
       //why was it at n < 50
@@ -865,50 +979,94 @@ class River {
 }
 
 class Sun {
-  constructor() {
-    this.speed = 5; //play with number
-  }
-  display() {
-    //image(noRay[0], 792, 140);
-    if (this.mouseOverSun() == true) {
-      push();
-      imageMode(CENTER);
-      translate(686, 85); //translate coordinates?
-      //translate(0, 0);
-      rotate(radians(frameCount)); //want to make rotate in place when hovering
-      image(ray[0], 0, 0);
+  constructor(sText) {
+    this.x = 0;
+    this.y = 0;
+    for (let n = 0; n < 75; n++) {
+      //hard coded to 75?
+      for (let tries = 0; tries < 100; tries++) {
+        let x = random(0, 1200);
+        let y = random(-100, 350);
+        if (this.isOverLight(x, y) == true) {
+          this.x = x;
+          this.y = y;
+          break; // stop the loop right away
+        }
+      }
+    }
+    //this.opacity = 200;
+    //this.opacity = map(sin(frameCount), -1, 1, 100, 200);
 
-      pop();
+    //this.col = color(255, 212, 0, this.opacity);
+    let dy;
+    let dx;
+    if (this.x < 720 + xOff) {
+      //left ray
+      dy = 500 - 0; //top and bottom of rays (700, 0) (272, 500)
+      dx = 275 - 700;
+      this.angle = atan2(dy, dx) + PI;
     } else {
-      image(noRay[0], 550, 10); //fixed coordinates
+      dy = 500 - 0; //top and bottom of rays (760, 0) (810, 500)
+      dx = 810 - 760;
+      this.angle = atan2(dy, dx);
     }
+
+    this.sText = sText;
+
+    let sunSize = map(this.y, -100, height, 10, 40);
+    this.size = sunSize;
   }
 
-  move() {
-    //didn't work
-    let d = dist(mouseX + xOff, mouseY, 686, 85);
-    if (d < 50) {
-      push();
-      translate(0, 0);
-      imageMode(CENTER);
-      rotate(radians(frameCount));
-      //display();
-      pop();
+  display() {
+    this.opacity = map(sin(frameCount / 30), -1, 1, 0, 200);
+
+    let d = dist(mouseX + xOff, mouseY, this.x, this.y);
+    if (d < 20) {
+      this.opacity = 255;
     }
+    textAlign(CENTER, CENTER);
+
+    fill(color(255, 212, 0, this.opacity));
+    textSize(this.size);
+    push();
+    translate(this.x, this.y);
+    rotate(this.angle);
+    text(this.sText, 0, 0);
+    pop();
   }
 
-  mouseOverSun() {
-    let d = dist(mouseX + xOff, mouseY, 686, 85);
-    if (d < 50) {
+  isOverLight(x, y) {
+    let c = sunImg.get(x, y);
+    if (red(c) == 255 && green(c) == 222) {
       return true;
     } else {
       return false;
+    }
+  }
+
+  move() { }
+
+  sound() {
+    if (this.isOverLight(mouseX + xOff, mouseY) == true) {
+      if (sunSound.isPlaying() == false) {
+        sunSound.loop();
+        sunSound.setVolume(1.0, 0.5);
+      }
+    } else {
+      sunSound.setVolume(0, 0.2);
+
+      if (sunSound.getVolume() <= 0.2) {
+        //if mouse comes back too quickly, volumen still present, can't play right away
+        sunSound.pause();
+      }
     }
   }
 }
 
 class Cloud {
   constructor(cText) {
+    this.x = 0;
+    this.y = 0;
     //teleporting method
     for (let n = 0; n < cloudWords.length; n++) {
       //why was it at n < 50
@@ -924,7 +1082,7 @@ class Cloud {
     }
     this.cText = cText;
     this.size = 20;
-    this.col = color(212, 230, 248);//light bluey
+    this.col = color(212, 230, 248); //light bluey
     this.angle = 0;
   }
 
@@ -933,11 +1091,10 @@ class Cloud {
     if (d < 30) {
       //this.col = color(181, 178, 170); //darker grey
       this.col = color(227, 190, 195); //pink!
-    }
-    else {
+    } else {
       //this.col = color(222, 220, 217); //light grey
       //this.col = color(253, 215, 195); //yellowy
-      this.col = color(212, 230, 248);//light bluey 
+      this.col = color(212, 230, 248); //light bluey
     }
 
     textAlign(CENTER, CENTER);
@@ -947,7 +1104,8 @@ class Cloud {
     text(this.cText, this.x, this.y);
   }
 
-  isOverCloud(x, y) { //having issues
+  isOverCloud(x, y) {
+    //having issues
     let c = mapImg.get(x, y);
     if (blue(c) == 0 && red(c) == 0 && green(c) == 0) {
       return true;
@@ -960,18 +1118,19 @@ class Cloud {
     this.x += map(sin(frameCount / 20), -10, 10, -2, 2); //made sin range bigger to make cloud move less
     this.y += map(sin(frameCount / 30), -10, 10, -1, 1);
   }
-
-
 }
 
 class Rain {
   constructor(raText) {
+    this.x = 0;
+    this.y = 0;
     //teleporting method
     for (let n = 0; n < 75; n++) {
       for (let tries = 0; tries < 100; tries++) {
         let x = random(0, width);
         let y = random(0, height);
-        if (this.isInCloud(x, y) == true) { //arguments x y 
+        if (this.isInCloud(x, y) == true) {
+          //arguments x y
           this.x = x;
           this.y = y;
           break; // stop the loop right away
@@ -1027,8 +1186,7 @@ class Rain {
         this.isFalling = true;
         //this.respawn = true; //new function??
       }
-    }
-    else {
+    } else {
       this.startHover = 0;
     }
 
@@ -1073,11 +1231,15 @@ class Rain {
 
 class House {
   constructor(hText) {
+    this.x = 0;
+    this.y = 0;
     //I need even numbers
     let index = int(random(houseXYs.length)); //wrap so no decimal
     this.x = houseXYs[index].x;
     this.y = houseXYs[index].y;
-    houseXYs.splice(index, 1); //don't want house double up
+    if (houseXYs.length != 0) {
+      houseXYs.splice(index, 1); //don't want house double up
+    }
 
     this.hText = hText;
     this.size = 15;
@@ -1095,9 +1257,8 @@ class House {
   display() {
     if (this.x < 800 + xOff) {
       textAlign(LEFT, CENTER);
-    }
-    else {
-      textAlign(RIGHT, CENTER) //I can't get it to align the way I want it
+    } else {
+      textAlign(RIGHT, CENTER); //I can't get it to align the way I want it
     }
     fill(this.col);
     textSize(this.size);
@@ -1118,24 +1279,25 @@ class House {
 
   isOverHouse(x, y) {
     let c = mapImg.get(x, y);
-    if ((red(c) == 80 && green(c) == 33 && blue(c) == 174) || (red(c) == 140 && green(c) == 82 && blue(c) == 255)) {
-      console.log("is over house");
+    if (
+      (red(c) == 80 && green(c) == 33 && blue(c) == 174) ||
+      (red(c) == 140 && green(c) == 82 && blue(c) == 255)
+    ) {
       return true;
     } else {
       return false;
     }
   }
 
-  move() { //smoke?
-
+  move() {
+    //smoke?
   }
 
   sound() {
     if (this.isOverHouse(mouseX + xOff, mouseY) == true) {
       if (houseSound.isPlaying() == false) {
-        console.log("house is playing");
         houseSound.loop();
-        houseSound.setVolume(0.8, 0.5);
+        houseSound.setVolume(0.6, 0.5);
       }
     } else {
       houseSound.setVolume(0, 0.5);
@@ -1144,6 +1306,94 @@ class House {
         //if mouse comes back too quickly, volume still present, can't play right away
         houseSound.pause();
       }
+    }
+  }
+}
+
+class Smoke {
+  constructor(smText) {
+    //teleporting method
+    for (let n = 0; n < 75; n++) {
+      for (let tries = 0; tries < 100; tries++) {
+        let x = random(0, 1200);
+        let y = random(0, 500);
+        if (this.isInChimney(x, y) == true) {
+          //arguments x y
+          this.x = x;
+          this.y = y;
+          break; // stop the loop right away
+        }
+      }
+    }
+    this.smText = smText;
+    this.size = random(10, 15);
+    this.rand = random(10);
+    this.startHover = 0;
+    this.isRising = false;
+    this.ySpeed = random(-1, -0.5);
+    //this.xSpeed = sin(frameCount / 10) ; //all moves...
+    this.xSpeed = random(-0.5, 0.5);
+    this.hasRespawned = false;
+    this.dead = false;
+    this.opacity = 200;
+    this.col = color(255, this.opacity);
+  }
+
+  display() {
+    if (this.y < 60) {
+      //       let c = mapImg.get(this.x, this.y);
+      //       if (this.rand < 5) {
+      //         this.col = color(120, 187, 255, this.opacity);
+      //       } else {
+      //         this.col = color(46, 150, 255, this.opacity);
+      //       }
+      this.opacity = map(this.y, 60, 0, 200, 15);
+
+      fill(this.col);
+      textAlign(CENTER, CENTER);
+
+      textSize(this.size);
+      text(this.smText, this.x, this.y);
+    }
+  }
+
+  move() {
+    let d = dist(mouseX + xOff, mouseY, this.x, this.y);
+    let c = mapImg.get(this.x, this.y);
+
+    if (d < 50) {
+      if (this.startHover == 0) {
+        this.startHover = millis();
+        //console.log("mouse over chimney");
+      }
+      // startHover is guaranteed to be set here (and not 0)
+      if (millis() - this.startHover > 100) {
+        //console.log("start falling");
+        this.isRising = true;
+      }
+    } else {
+      this.startHover = 0;
+    }
+
+    if (this.isRising == true) {
+      if (this.y > 0) {
+        this.y += this.ySpeed;
+        this.x += this.xSpeed;
+      } else if (this.hasRespawned == false) {
+        //switch
+        this.hasRespawned = true;
+        smokes.push(new Smoke(this.smText));
+        this.dead = true;
+      }
+    }
+  }
+
+  isInChimney(x, y) {
+    let c = mapImg.get(x, y); //arguments?
+    if (red(c) == 80 && x > 1040 && x < 1100) {
+      return true;
+    } else {
+      return false;
     }
   }
 }
@@ -1170,20 +1420,18 @@ class House {
 // }
 
 function scroll() {
-  console.log(xOff);
   if (keyCode == LEFT_ARROW) {
     xOff -= 5;
   } else if (keyCode == RIGHT_ARROW) {
     xOff += 5;
   }
 
-  if (xOff >= 1200) { //1200
+  if (xOff >= 1200) {
+    //1200
     xOff = -1201; //-200
-  }
-  else if (xOff <= -1200) {
+  } else if (xOff <= -1200) {
     xOff = 1201;
   }
-
 
   //   let xSize = 1200;
   //   //let x = 250; //for example
