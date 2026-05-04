@@ -43,8 +43,8 @@ canvas {
 }
 
 #instructions {
-  margin-left: 18%;
-  margin-right: 18%;
+  margin-left: 16%;
+  margin-right: 16%;
   text-align: justify;
   font-size: 25px;
   line-height: 1.5;
@@ -52,7 +52,7 @@ canvas {
 
 h1 {
   font-size: 120px;
-  color: peru;
+  color: #cd853f;
   font-family: "Libre Barcode 128 Text";
 }
 
