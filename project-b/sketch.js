@@ -1,8 +1,6 @@
 //INTRO
 let state;
 let earthImg;
-// let mx;
-// let my;
 
 let earths = [];
 let earthWords = [
@@ -413,8 +411,6 @@ function preload() {
 
 function setup() {
   createCanvas(800, 500); //want to rescale to full window width and height
-  //createCanvas(windowWidth, windowHeight);
-  //windowWidth, windowHeight functionwindowResized in p5
   state = 1;
   textFont("Noto Sans");
   textStyle(NORMAL); //for font
@@ -484,45 +480,16 @@ function setup() {
 }
 
 function draw() {
-  //console.log(mouseX + xOff, mouseY);
-  //image(mapImg, 0, 0);
-  //image(sunImg, 0, 0);
-  //left side black right side white (fade)
   background(0);
 
-  //NEED TO SCALE EVERYTHING TO WINDOW WIDTH AND HEIGHT
-  // let scaleX = width / 800;
-  // let scaleY = height / 500;
-
-  // mx = mouseX / scaleX; //need to update mouseX and mouseY because scaled drawing
-  // my = mouseY / scaleY;
-
-  // push();
-  // scale(scaleX, scaleY);
-
-  //BACKGROUND GRADIENT
-  // for (let x = 0; x < width; x++) {
-  //   let day = abs(x - 740 + xOff); //distance from sunlight?
-  //   let bg = map(day, 0, 500, 255, 0); //200 bc want more sudden gradient
-  //   stroke(bg);
-  //   bg = constrain(bg, 0, 255);
-  //   line(x, 0, x, height);
-  // }
-  // noStroke();
-
-  //STATES turn back on later
   if (state == 1) {
     //background(0);
     intro();
     enterClicked();
   } else if (state == 2) {
-    //all the other functions (everything in draw right now)
-    //bg(); //gradient only happens in state 2
+
     push();
     translate(-xOff, 0);
-    //SUN
-    // sun.display();
-    // sun.move();
 
     //SUN
     for (let i = 0; i < suns.length; i++) {
@@ -589,13 +556,9 @@ function draw() {
     }
 
     pop();
-  } //END OF INSIDE STATE 2
-  //pop(); //end of scaling 
+  } //END OF INSIDE STATE 2 
 }
 
-// function windowResized() { //to resize based on tab size
-//   resizeCanvas(windowWidth, windowHeight);
-// }
 
 function intro() {
   for (let i = 0; i < earths.length; i++) {
@@ -619,18 +582,6 @@ function intro() {
     enters[i].display();
   }
 
-  //background...earth words going through?
-}
-
-function bg() {
-  for (let x = 0; x < width; x++) {
-    let day = abs(x - 800 + xOff); //distance from sunlight center?
-    let bg = map(day, 0, 200, 255, 100); //200 bc want more sudden gradient
-    stroke(bg);
-    bg = constrain(bg, 0, 255);
-    line(x, 0, x, height);
-  }
-  noStroke();
 }
 
 class Earth {
@@ -639,7 +590,6 @@ class Earth {
     this.x = 0;
     this.y = 0;
     for (let n = 0; n < 75; n++) {
-      //what does this n do
       //hard coded to 75?
       for (let tries = 0; tries < 100; tries++) {
         let x = random(0, width);
@@ -882,25 +832,9 @@ class Tree {
         trees.push(new Tree(this.tText));
       }
     }
-
-    // if (this.isOverTree == false) { //want to spawn new leaves
-    //   trees.push(new Tree(treeWords[this.tText]));
-    //   console.log("respawning tree");
-    //   // for (let tries = 0; tries < 100; tries++) {
-    //   //   let x = random(0, width);
-    //   //   let y = random(0, height);
-    //   //   if (this.isOverTree(x, y) == true) {
-    //   //     this.x = x;
-    //   //     this.y = y;
-    //   //     trees.push(new Tree(treeWords[this.tText]));
-    //   //     break; // stop the loop right away
-    //   //   }
-    //   // }
-    // }
   }
 
   sound() {
-    //is this how while works?
     if (
       this.isOverTree(mouseX + xOff, mouseY) == true &&
       leafSound.isPlaying() == false
@@ -972,11 +906,6 @@ class River {
       this.overWater = false;
     }
 
-    // if (this.overWater == false) {
-    //   this.speedY = -1 * this.speedY;
-    //   this.overWater = true;
-    // }
-
     //updating
     this.x += this.speedX;
     this.y += this.speedY;
@@ -1037,10 +966,7 @@ class Sun {
         }
       }
     }
-    //this.opacity = 200;
-    //this.opacity = map(sin(frameCount), -1, 1, 100, 200);
 
-    //this.col = color(255, 212, 0, this.opacity);
     let dy;
     let dx;
     if (this.x < 740 + xOff) {
@@ -1309,18 +1235,6 @@ class House {
     fill(this.col);
     textSize(this.size);
     text(this.hText, this.x, this.y);
-    // push();
-    // translate(this.x, this.y);
-    // if(this.y < 170){
-    //   this.angle = -45;
-    // } else if (this.y > 50 && this.y < 100 && this.x>1000 + xOff && this.x <1060 + xOff){
-    //   this.angle = 0;
-    // } else{
-    //   this.angle = 0;
-    // }
-    // rotate(radians(this.angle));
-    // text(this.hText, 0, 0);
-    // pop();
   }
 
   isOverHouse(x, y) {
@@ -1435,27 +1349,6 @@ class Smoke {
   }
 }
 
-// function mouseClicked() {
-//   //turned off for debugging purposes
-//   //for tree
-//   if (trees[0].isOverTree(mouseX, mouseY) == true) {
-//     //go through all the tree words to see which
-//     for (let i = 0; i < trees.length; i++) {
-//       //why does it say trees.length is not a function
-//       let d = dist(mouseX + xOff, mouseY, trees[i].x, trees[i].y);
-//       if (d < 5) {
-//         //range? so many overlapped
-//         selected = treeLangs[i];
-//       } else {
-//         selected = null; //from lilypad dragging
-//       }
-//     }
-//     //if click, play sound?
-//     lang = selected + "Sound";
-//     lang.play(); //would this work to hold the string?
-//   }
-// }
-
 function scroll() {
   if (keyCode == LEFT_ARROW) {
     xOff -= 5;
@@ -1469,25 +1362,6 @@ function scroll() {
   } else if (xOff <= -800) {
     xOff = 1200;
   }
-
-  //   let xSize = 1200;
-  //   //let x = 250; //for example
-
-  //   //river class
-
-  //   // circle((xOff + x) % xSize - 50, height/2, 100);
-  //   // console.log(xOff, xSize, (xOff + x) % xSize);
-  //   //in xOff + x % xSize, subtract size/2 to make it loop smoothly
-
-  //   for (let i = 0; i < rivers.length; i++) {
-  //     xOff = 0;
-  //     if (keyIsPressed) {
-  //       xOff++;
-  //     }
-  //     //rivers[i].x = (rivers[i].x + xOff) % xSize - rivers[i].size/2;
-  //     rivers[i].x = (rivers[i].x + xOff) % xSize;
-  //     //console.log(xOff, xSize, (xOff + rivers[i].x) % xSize);
-  //   }
 }
 
 //IMAGE HELPER FUNCTIONS from reci8
