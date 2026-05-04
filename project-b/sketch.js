@@ -298,15 +298,24 @@ let rainWords = [
   "Hujan",
 ];
 
+let houses = [];
+let houseWords = ["House", "Casa", "Maison", "Casa", "Haus", "Casa", "Huis", "Hus", "Hus", "Hus", "До́м", "Dom", "Dům", "Σπίτι", "Domus", "Teach", "Tŷ", "房子", "家", "집", "Ev", "Rumah", "Talo", "Ház", "Nyumba", "Nhà", "บ้าน", "Bahay", "Гэр", "Wasi", "ਘਰ", "Casă", "Ilé", "Rumah"];
+// let houseXs = [];
+// let houseYs = []; //I want a grid
+let houseXYs = [];
+
+
 //sounds
 let leafSound;
 let riverSound; //Stream, Water, C.wav by InspectorJ -- https://freesound.org/s/339324/ -- License: Attribution 4.0
 let rainSound;
+let houseSound;
+//2024.02.01 Sauteing food by TeamEnFil -- https://freesound.org/s/721390/ -- License: Attribution 4.0
 let selected;
 let lang;
 
 function preload() {
-  mapImg = loadImage("assets/map-edit3.png");
+  mapImg = loadImage("assets/map-edit4.png");
   sunImg.push(loadImage("suns.png"));
   earthImg = loadImage("assets/earthMap-800.png");
 
@@ -314,6 +323,13 @@ function preload() {
   leafSound = loadSound("assets/457318__stek59__autumn-wind-and-dry-leaves.wav");
   riverSound = loadSound("assets/339324_inspectorj_stream-water-c.mp3");
   rainSound = loadSound("assets/28283__acclivity__undertreeinrain.mp3");
+  houseSound = loadSound("assets/721390_teamenfil_202402.mp3");
+
+
+  leafSound.setVolume(0);
+  riverSound.setVolume(0);
+  rainSound.setVolume(0);
+  houseSound.setVolume(0);
 
   //would I have to preload all the audios for tree pronunciation here? = need a variable for all of them? can I push to array here without needing to make a variable name (ex. can just use treeFiles[i])
 }
@@ -351,7 +367,7 @@ function setup() {
   }
 
   //CLOUD
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 25; i++) {
     //want to push more
     clouds.push(new Cloud(cloudWords[i % cloudWords.length]));
   }
@@ -360,10 +376,27 @@ function setup() {
   for (let i = 0; i < 20; i++) {
     rains.push(new Rain(rainWords[i % rainWords.length]))
   }
+
+  //HOUSE GRID?
+  for (let y = 45; y < 345; y = y + 16) { //rows
+    for (let x = 800 + xOff; x < 1300 + xOff; x = x + 16) {
+      let c = mapImg.get(x, y);
+      if ((red(c) == 80 && green(c) == 33 && blue(c) == 174) || (red(c) == 140 && green(c) == 82 && blue(c) == 255)) {
+        let pos = { x: x, y: y }; //google says can store coordinates as objects in array like this
+        houseXYs.push(pos);
+        //break;
+      }
+    }
+  }
+  //HOUSE
+  for (let i = 0; i < 140; i++) {
+    houses.push(new House(houseWords[i % houseWords.length]))
+  }
 }
 
 function draw() {
   console.log(mouseX, mouseY);
+
   //image(mapImg, 0, 0);
   background(255);
 
@@ -405,6 +438,19 @@ function draw() {
     rains[i].display();
     rains[i].move();
     rains[i].sound();
+  }
+
+  //HOUSE
+  for (let i = 0; i < houses.length; i++) {
+    houses[i].display();
+    // houses[i].move(); //unlock
+    houses[i].sound();
+  }
+
+  for (let i = rains.length - 1; i <= 0; i--) {
+    if (rains[i].dead == true) {
+      rains.splice(i, 1);
+    }
   }
 
   //SCROLL
@@ -468,7 +514,7 @@ class Earth {
 
   display() {
     let d = dist(mouseX + xOff, mouseY, this.x, this.y);
-    console.log(mouseX, mouseY, xOff);
+    //console.log(mouseX, mouseY, xOff);
     if (d < 10) {
       this.size = 40;
     } else {
@@ -523,7 +569,7 @@ class Enter {
     if (mouseOverEnter() == true) {
       //for(let i = 0; i < enterWords.length; i++){
       if (frameCount % 20 == 19) {
-        console.log("frameCount test");
+        //console.log("frameCount test");
         //curText = enterWords[i % enterWords.length];
         curText = enterWords[int(random(enterWords.length))];
       }
@@ -659,8 +705,8 @@ class Tree {
         this.startHover = millis();
       }
       // startHover is guaranteed to be set here (and not 0)
-      if (millis() - this.startHover > 1500) {
-        console.log("start falling");
+      if (millis() - this.startHover > 500) {
+        //console.log("start falling");
         this.isFalling = true;
         //this.respawn = true; //new function??
       }
@@ -676,7 +722,7 @@ class Tree {
       } else if (this.hasRespawned == false) {
         //switch
         this.hasRespawned = true;
-        console.log("new tree respawned");
+        //console.log("new tree respawned");
 
         trees.push(new Tree(this.tText));
       }
@@ -705,8 +751,12 @@ class Tree {
       leafSound.isPlaying() == false
     ) {
       leafSound.loop(); //vs .play(); is there a way to lerp sound?
+      leafSound.setVolume(1.0, 0.5);
     } else if (this.isOverTree(mouseX + xOff, mouseY) == false) {
-      leafSound.pause();
+      leafSound.setVolume(0, 0.2);
+      if (leafSound.getVolume() <= 0.1) {
+        leafSound.pause();
+      }
     }
   }
 }
@@ -800,10 +850,16 @@ class River {
   sound() {
     if (this.isOverWater(mouseX + xOff, mouseY) == true) {
       if (riverSound.isPlaying() == false) {
-        riverSound.play();
+        riverSound.loop();
+        riverSound.setVolume(1.0, 0.5);
       }
     } else {
-      riverSound.pause();
+      riverSound.setVolume(0, 0.2);
+
+      if (riverSound.getVolume() <= 0.2) {
+        //if mouse comes back too quickly, volumen still present, can't play right away
+        riverSound.pause();
+      }
     }
   }
 }
@@ -931,6 +987,7 @@ class Rain {
     this.isFalling = false;
     this.ySpeed = random(1, 3);
     this.hasRespawned = false;
+    this.dead = false;
 
     let c = mapImg.get(this.x, this.y);
     if (this.rand < 5) {
@@ -941,7 +998,7 @@ class Rain {
   }
 
   display() {
-    if (this.y < 300 && this.y > 145) {
+    if (this.y < 280 && this.y > 155) {
       textAlign(CENTER, CENTER);
       fill(this.col);
       textSize(this.size);
@@ -966,7 +1023,7 @@ class Rain {
       }
       // startHover is guaranteed to be set here (and not 0)
       if (millis() - this.startHover > 100) {
-        console.log("start falling");
+        //console.log("start falling");
         this.isFalling = true;
         //this.respawn = true; //new function??
       }
@@ -982,9 +1039,8 @@ class Rain {
       } else if (this.hasRespawned == false) {
         //switch
         this.hasRespawned = true;
-        console.log("new rain respawned");
-
         rains.push(new Rain(this.raText));
+        this.dead = true;
       }
     }
   }
@@ -1001,10 +1057,93 @@ class Rain {
   sound() {
     if (this.isInCloud(mouseX + xOff, mouseY) == true) {
       if (rainSound.isPlaying() == false) {
-        rainSound.play();
+        rainSound.loop();
+        rainSound.setVolume(1.0, 0.5);
       }
     } else {
-      rainSound.pause();
+      rainSound.setVolume(0, 0.5);
+
+      if (rainSound.getVolume() <= 0.01) {
+        //if mouse comes back too quickly, volume still present, can't play right away
+        rainSound.pause();
+      }
+    }
+  }
+}
+
+class House {
+  constructor(hText) {
+    //I need even numbers
+    let index = int(random(houseXYs.length)); //wrap so no decimal
+    this.x = houseXYs[index].x;
+    this.y = houseXYs[index].y;
+    houseXYs.splice(index, 1); //don't want house double up
+
+    this.hText = hText;
+    this.size = 15;
+    this.col = color(0);
+    this.angle = 0;
+
+    let c = mapImg.get(this.x, this.y); //DEBUGGING
+    if (red(c) == 80) {
+      this.col = color(179, 46, 5); //brick red
+    } else if (red(c) == 140) {
+      this.col = color(252, 167, 141); //light red
+    }
+  }
+
+  display() {
+    if (this.x < 800 + xOff) {
+      textAlign(LEFT, CENTER);
+    }
+    else {
+      textAlign(RIGHT, CENTER) //I can't get it to align the way I want it
+    }
+    fill(this.col);
+    textSize(this.size);
+    text(this.hText, this.x, this.y);
+    // push();
+    // translate(this.x, this.y);
+    // if(this.y < 170){
+    //   this.angle = -45;
+    // } else if (this.y > 50 && this.y < 100 && this.x>1000 + xOff && this.x <1060 + xOff){
+    //   this.angle = 0;
+    // } else{
+    //   this.angle = 0;
+    // }
+    // rotate(radians(this.angle));
+    // text(this.hText, 0, 0);
+    // pop();
+  }
+
+  isOverHouse(x, y) {
+    let c = mapImg.get(x, y);
+    if ((red(c) == 80 && green(c) == 33 && blue(c) == 174) || (red(c) == 140 && green(c) == 82 && blue(c) == 255)) {
+      console.log("is over house");
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  move() { //smoke?
+
+  }
+
+  sound() {
+    if (this.isOverHouse(mouseX + xOff, mouseY) == true) {
+      if (houseSound.isPlaying() == false) {
+        console.log("house is playing");
+        houseSound.loop();
+        houseSound.setVolume(0.8, 0.5);
+      }
+    } else {
+      houseSound.setVolume(0, 0.5);
+
+      if (houseSound.getVolume() <= 0.01) {
+        //if mouse comes back too quickly, volume still present, can't play right away
+        houseSound.pause();
+      }
     }
   }
 }
