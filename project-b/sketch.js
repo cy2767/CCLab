@@ -1,6 +1,8 @@
 //INTRO
 let state;
 let earthImg;
+// let mx;
+// let my;
 
 let earths = [];
 let earthWords = [
@@ -410,8 +412,12 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(800, 500); //windowWidth, windowHeight functionwindowResized in p5
+  createCanvas(800, 500); //want to rescale to full window width and height
+  //createCanvas(windowWidth, windowHeight);
+  //windowWidth, windowHeight functionwindowResized in p5
   state = 1;
+  textFont("Noto Sans");
+  textStyle(NORMAL); //for font
 
   //INTRO
   for (let i = 0; i < earthN; i++) {
@@ -424,7 +430,7 @@ function setup() {
   enters.push(new Enter("enter"));
 
   //SUN
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 25; i++) {
     suns.push(new Sun(sunWords[i % sunWords.length]));
   }
 
@@ -454,7 +460,7 @@ function setup() {
   //HOUSE GRID?
   for (let y = 45; y < 345; y = y + 16) {
     //rows
-    for (let x = 800 + xOff; x < 1300 + xOff; x = x + 16) {
+    for (let x = width + xOff; x < 1300 + xOff; x = x + 16) {
       let c = mapImg.get(x, y);
       if (
         (red(c) == 80 && green(c) == 33 && blue(c) == 174) ||
@@ -483,14 +489,35 @@ function draw() {
   //image(sunImg, 0, 0);
   //left side black right side white (fade)
   background(0);
-  //background(135, 206, 235); //sky blue
+
+  //NEED TO SCALE EVERYTHING TO WINDOW WIDTH AND HEIGHT
+  // let scaleX = width / 800;
+  // let scaleY = height / 500;
+
+  // mx = mouseX / scaleX; //need to update mouseX and mouseY because scaled drawing
+  // my = mouseY / scaleY;
+
+  // push();
+  // scale(scaleX, scaleY);
+
+  //BACKGROUND GRADIENT
+  // for (let x = 0; x < width; x++) {
+  //   let day = abs(x - 740 + xOff); //distance from sunlight?
+  //   let bg = map(day, 0, 500, 255, 0); //200 bc want more sudden gradient
+  //   stroke(bg);
+  //   bg = constrain(bg, 0, 255);
+  //   line(x, 0, x, height);
+  // }
+  // noStroke();
 
   //STATES turn back on later
   if (state == 1) {
+    //background(0);
     intro();
     enterClicked();
   } else if (state == 2) {
     //all the other functions (everything in draw right now)
+    //bg(); //gradient only happens in state 2
     push();
     translate(-xOff, 0);
     //SUN
@@ -563,7 +590,12 @@ function draw() {
 
     pop();
   } //END OF INSIDE STATE 2
+  //pop(); //end of scaling 
 }
+
+// function windowResized() { //to resize based on tab size
+//   resizeCanvas(windowWidth, windowHeight);
+// }
 
 function intro() {
   for (let i = 0; i < earths.length; i++) {
@@ -581,13 +613,24 @@ function intro() {
   } else {
     fill(0, 102, 19);
   }
-  text("l", width / 2 + 55, 75); //blinking letter l
+  text("l", width / 2 + 65, 75); //blinking letter l
 
   for (let i = 0; i < enters.length; i++) {
     enters[i].display();
   }
 
   //background...earth words going through?
+}
+
+function bg() {
+  for (let x = 0; x < width; x++) {
+    let day = abs(x - 800 + xOff); //distance from sunlight center?
+    let bg = map(day, 0, 200, 255, 100); //200 bc want more sudden gradient
+    stroke(bg);
+    bg = constrain(bg, 0, 255);
+    line(x, 0, x, height);
+  }
+  noStroke();
 }
 
 class Earth {
@@ -1000,7 +1043,7 @@ class Sun {
     //this.col = color(255, 212, 0, this.opacity);
     let dy;
     let dx;
-    if (this.x < 720 + xOff) {
+    if (this.x < 740 + xOff) {
       //left ray
       dy = 500 - 0; //top and bottom of rays (700, 0) (272, 500)
       dx = 275 - 700;
@@ -1013,12 +1056,13 @@ class Sun {
 
     this.sText = sText;
 
-    let sunSize = map(this.y, -100, height, 10, 40);
+    let sunSize = map(this.y, 0, height, 10, 30);
     this.size = sunSize;
+
   }
 
   display() {
-    this.opacity = map(sin(frameCount / 30), -1, 1, 0, 200);
+    this.opacity = map(sin(frameCount / 30), -1, 1, 0, 100);
 
     let d = dist(mouseX + xOff, mouseY, this.x, this.y);
     if (d < 20) {
@@ -1033,6 +1077,8 @@ class Sun {
     rotate(this.angle);
     text(this.sText, 0, 0);
     pop();
+
+    text("sun", 735, 10);
   }
 
   isOverLight(x, y) {
@@ -1332,7 +1378,7 @@ class Smoke {
     this.isRising = false;
     this.ySpeed = random(-1, -0.5);
     //this.xSpeed = sin(frameCount / 10) ; //all moves...
-    this.xSpeed = random(-0.5, 0.5);
+    //this.xSpeed = random(-1, 1);
     this.hasRespawned = false;
     this.dead = false;
     this.opacity = 200;
@@ -1341,14 +1387,6 @@ class Smoke {
 
   display() {
     if (this.y < 60) {
-      //       let c = mapImg.get(this.x, this.y);
-      //       if (this.rand < 5) {
-      //         this.col = color(120, 187, 255, this.opacity);
-      //       } else {
-      //         this.col = color(46, 150, 255, this.opacity);
-      //       }
-      this.opacity = map(this.y, 60, 0, 200, 15);
-
       fill(this.col);
       textAlign(CENTER, CENTER);
 
@@ -1378,7 +1416,6 @@ class Smoke {
     if (this.isRising == true) {
       if (this.y > 0) {
         this.y += this.ySpeed;
-        this.x += this.xSpeed;
       } else if (this.hasRespawned == false) {
         //switch
         this.hasRespawned = true;
@@ -1428,9 +1465,9 @@ function scroll() {
 
   if (xOff >= 1200) {
     //1200
-    xOff = -1201; //-200
-  } else if (xOff <= -1200) {
-    xOff = 1201;
+    xOff = -800; //-200
+  } else if (xOff <= -800) {
+    xOff = 1200;
   }
 
   //   let xSize = 1200;

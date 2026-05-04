@@ -5,31 +5,58 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>CCLab Project</title>
+  <title>The 2026 Dictionary Project</title>
 
   <link rel="stylesheet" type="text/css" href="style.css">
 
   <script src="lib/p5.js"></script>
   <script src="lib/p5.sound.js"></script>
-
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+JP&family=Noto+Sans+KR&family=Noto+Sans+SC&display=swap"
+    rel="stylesheet">
   <!-- Alternatively, you can import the library via CDN (Content Delivery Network). -->
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.js"></script> -->
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/addons/p5.sound.js"></script> -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Asimovian&display=swap" rel="stylesheet">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Asimovian&family=Libre+Barcode+128+Text&display=swap"
+    rel="stylesheet">
 </head>
 
 <body>
 
   <div class="main-wrapper">
-    <h1>Do you read me?</h1>
+    <h1>The 2026 Dictionary Project</h1>
 
     <!-- the following div will contain the p5 canvas. -->
     <div id="p5-canvas-container">
       <!-- p5 canvas will be appended here. -->
     </div>
 
-    <p>Project Description</p>
-    <p>Prototpye of Project B. Implemented part of the interaction for the river (flowing) and spawned words for the
-      tree.</p>
+    <div id="text">
+      <p>It is now 3026 and the term "world languages" is officially considered out-of-date. There is a myth that at
+        one
+        point in time, around one thousand years ago, more than 7000 languages were in use around the world. But it's
+        merely
+        an
+        old legend. Today, only a few languages are used, dominating the speech and texts of the globe.</p>
+
+      <p>But wait, you've stumbled across something. <i>The 2026 Dictionary Project?</i> Unfamiliar words create
+        familiar
+        images.
+        Perhaps the world languages of 2026 are not a myth after all.
+      </p>
+    </div>
+
+    <div id="instructions">
+      <p>Please turn on your volume. Use your mouse to interact with the words. Use your arrow keys to move left and
+        right within the scene.</p>
+    </div>
   </div>
 
   <!-- the script tag below should always be at the bottom, right before the closing body tag -->
